@@ -31,6 +31,13 @@ jobs:
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
         restore-keys: |
           ${{ runner.os }}-gradle-
+    
+    - name: Install Gradle
+      shell: bash
+      run: |
+        curl -s https://get.sdkman.io | bash
+        source "$HOME/.sdkman/bin/sdkman-init.sh"
+        sdk install gradle 8.9
           
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v3
@@ -38,7 +45,10 @@ jobs:
         gradle-version: 8.9
         
     - name: Build Debug APK
-      run: gradle assembleDebug
+      shell: bash
+      run: |
+        source "$HOME/.sdkman/bin/sdkman-init.sh"
+        gradle assembleDebug
       
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
@@ -47,10 +57,11 @@ jobs:
         path: app/build/outputs/apk/debug/app-debug.apk
         
     - name: Build Release APK
-      run: gradle assembleRelease
+      shell: bash
+      run: |
+        source "$HOME/.sdkman/bin/sdkman-init.sh"
+        gradle assembleRelease
       
     - name: Upload Release APK
       uses: actions/upload-artifact@v4
-      with:
-        name: n0tez-release-apk
-        path: app/build/outputs/apk/release/app-release-unsigned.apk
+      with:igned.apk
