@@ -77,6 +77,8 @@ jobs:
         emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
         disable-animations: true
         script: |
+          adb wait-for-device
+          adb devices
           adb logcat -c
           adb shell am start -W -n com.n0tez.app/.MainActivity
           sleep 5
@@ -84,15 +86,15 @@ jobs:
           adb shell input tap 540 600
           sleep 3
           # capture any crash or ANR
-          adb logcat -d | tee logcat.txt
+          adb logcat -d > logcat.txt || true
           if grep -q 'FATAL\|AndroidRuntime\|ANR' logcat.txt; then
             echo "❌ Smoke test FAILED"; exit 1
           else
             echo "✅ Smoke test PASSED"
           fi
 
-    - name: Upload logcat if crash
-      if: failure()
+    - name: Upload smoke-test logcat
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: smoke-logcat
