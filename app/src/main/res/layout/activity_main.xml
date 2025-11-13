@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme"
+        
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -74,7 +74,7 @@
                 android:layout_height="48dp"
                 android:layout_gravity="center_horizontal"
                 android:src="@drawable/ic_note"
-                app:tint="?attr/colorPrimary" />
+                android:tint="?attr/colorPrimary" />
 
             <TextView
                 android:layout_width="wrap_content"
