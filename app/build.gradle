@@ -6,10 +6,6 @@ plugins {
     id 'com.google.firebase.crashlytics'
 }
 
-firebaseCrashlytics {
-    mappingFileUploadEnabled false
-}
-
 android {
     namespace 'com.n0tez.app'
     compileSdk 34
