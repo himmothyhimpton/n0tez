@@ -125,7 +125,7 @@
                 android:layout_height="48dp"
                 android:layout_gravity="center_horizontal"
                 android:src="@drawable/ic_widget"
-                app:tint="?attr/colorPrimary" />
+                android:tint="?attr/colorPrimary" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -179,7 +179,7 @@
                 android:layout_height="48dp"
                 android:layout_gravity="center_horizontal"
                 android:src="@drawable/ic_settings"
-                app:tint="?attr/colorPrimary" />
+                android:tint="?attr/colorPrimary" />
 
             <TextView
                 android:layout_width="wrap_content"
