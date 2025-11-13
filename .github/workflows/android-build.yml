@@ -79,6 +79,28 @@ jobs:
       shell: bash
       run: gradle assembleRelease --no-daemon --stacktrace --info --warning-mode all --no-parallel --max-workers=1 | tee build-release.log
 
+    - name: Zipalign Release APK
+      shell: bash
+      run: |
+        "$ANDROID_HOME/build-tools/34.0.0/zipalign" -v -p 4 app/build/outputs/apk/release/app-release-unsigned.apk app-release-aligned.apk
+
+    - name: Generate Temporary Keystore
+      shell: bash
+      run: |
+        keytool -genkey -v -keystore release.keystore -storepass android -keypass android -alias n0tez \
+          -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=n0tez, OU=Dev, O=n0tez, L=City, S=State, C=US"
+
+    - name: Sign Release APK
+      shell: bash
+      run: |
+        "$ANDROID_HOME/build-tools/34.0.0/apksigner" sign --ks release.keystore --ks-pass pass:android --key-pass pass:android \
+          --out app-release-signed.apk app-release-aligned.apk
+
+    - name: Verify Signed APK
+      shell: bash
+      run: |
+        "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --verbose app-release-signed.apk
+
     - name: Upload Build Logs
       uses: actions/upload-artifact@v4
       with:
@@ -92,3 +114,9 @@ jobs:
       with:
         name: n0tez-release-apk
         path: app/build/outputs/apk/release/app-release-unsigned.apk
+
+    - name: Upload Signed Release APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: n0tez-release-signed-apk
+        path: app-release-signed.apk
