@@ -4,11 +4,13 @@ import android.app.Application
 import android.content.Context
 import com.google.firebase.FirebaseApp
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.n0tez.app.BuildConfig
 
 class N0tezApplication : Application() {
     
     override fun onCreate() {
         super.onCreate()
+        instance = this
         
         // Initialize Firebase
         FirebaseApp.initializeApp(this)

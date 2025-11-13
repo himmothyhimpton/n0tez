@@ -2,6 +2,7 @@ package com.n0tez.app
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
 import androidx.core.widget.addTextChangedListener
 import com.n0tez.app.databinding.ActivityNoteEditorBinding
 import kotlinx.coroutines.*
