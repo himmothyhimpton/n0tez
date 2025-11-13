@@ -62,16 +62,7 @@
             android:theme="@style/Theme.N0tez"
             android:windowSoftInputMode="adjustResize" />
         
-        <!-- Firebase Services -->
-        <service
-            android:name="com.google.firebase.components.ComponentDiscoveryService"
-            android:exported="false"
-            android:directBootAware="true">
-            <meta-data
-                android:name="com.google.firebase.components:io.grpc.okhttp.OkHttpChannelProvider"
-                android:value="com.google.firebase.components.ComponentRegistrar" />
-        </service>
-        
+        <!-- Firebase default notification settings -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_notification" />
