@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import com.google.firebase.FirebaseApp
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.n0tez.app.BuildConfig
 
 class N0tezApplication : Application() {
     
@@ -19,8 +18,10 @@ class N0tezApplication : Application() {
         FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
         
         // Set user properties for analytics
-        FirebaseCrashlytics.getInstance().setCustomKey("app_version", BuildConfig.VERSION_NAME)
-        FirebaseCrashlytics.getInstance().setCustomKey("app_build", BuildConfig.VERSION_CODE)
+        val pInfo = packageManager.getPackageInfo(packageName, 0)
+        FirebaseCrashlytics.getInstance().setCustomKey("app_version", pInfo.versionName ?: "")
+        val buildCode = try { pInfo.longVersionCode } catch (e: Throwable) { pInfo.versionCode.toLong() }
+        FirebaseCrashlytics.getInstance().setCustomKey("app_build", buildCode)
     }
     
     companion object {

@@ -36,7 +36,7 @@ class NoteEditorActivity : AppCompatActivity() {
             sliderTransparency.addOnChangeListener { _, value, _ ->
                 val alpha = value / 100f
                 noteContainer.alpha = alpha
-                saveTransparencyPreference(value)
+                saveTransparencyPreference(value.toInt())
             }
             
             // Setup text editor
