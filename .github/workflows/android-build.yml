@@ -16,7 +16,7 @@ jobs:
       with: { java-version: '17', distribution: 'temurin' }
     - uses: android-actions/setup-android@v3
     - uses: gradle/gradle-build-action@v3
-      with: { gradle-version: 8.9 }
+      with: { gradle-version: 8.4 }
     - name: Lint & Unit Test
       run: |
         gradle lintDebug testDebugUnitTest --no-daemon --stacktrace
@@ -37,7 +37,7 @@ jobs:
       with: { java-version: '17', distribution: 'temurin' }
     - uses: android-actions/setup-android@v3
     - uses: gradle/gradle-build-action@v3
-      with: { gradle-version: 8.9 }
+      with: { gradle-version: 8.4 }
 
     - name: Build debug APK
       run: gradle assembleDebug --no-daemon
@@ -148,15 +148,15 @@ jobs:
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v3
       with:
-        gradle-version: 8.9
+        gradle-version: 8.4
         
-    - name: Install Gradle 8.9
+    - name: Install Gradle 8.4
       shell: bash
       run: |
-        curl -L https://services.gradle.org/distributions/gradle-8.9-bin.zip -o gradle-8.9-bin.zip
-        unzip -q gradle-8.9-bin.zip -d $HOME/gradle
-        echo "GRADLE_HOME=$HOME/gradle/gradle-8.9" >> $GITHUB_ENV
-        echo "PATH=$HOME/gradle/gradle-8.9/bin:$PATH" >> $GITHUB_ENV
+        curl -L https://services.gradle.org/distributions/gradle-8.4-bin.zip -o gradle-8.4-bin.zip
+        unzip -q gradle-8.4-bin.zip -d $HOME/gradle
+        echo "GRADLE_HOME=$HOME/gradle/gradle-8.4" >> $GITHUB_ENV
+        echo "PATH=$HOME/gradle/gradle-8.4/bin:$PATH" >> $GITHUB_ENV
 
     - name: Build Debug APK
       shell: bash
