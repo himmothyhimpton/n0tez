@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory android:title="Security">
+        
+        <SwitchPreferenceCompat
+            android:key="pin_enabled"
+            android:title="PIN Protection"
+            android:summary="Enable 4-digit PIN to protect your notes"
+            android:defaultValue="false" />
+            
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Appearance">
+        
+        <ListPreference
+            android:key="theme"
+            android:title="Theme"
+            android:summary="Choose app theme"
+            android:entries="@array/theme_entries"
+            android:entryValues="@array/theme_values"
+            android:defaultValue="system" />
+            
+        <SeekBarPreference
+            android:key="transparency_level"
+            android:title="Default Transparency"
+            android:summary="Set default transparency level for notes"
+            android:min="10"
+            android:max="100"
+            android:defaultValue="70" />
+            
+        <ListPreference
+            android:key="widget_size"
+            android:title="Widget Size"
+            android:summary="Choose default floating widget size"
+            android:entries="@array/size_entries"
+            android:entryValues="@array/size_values"
+            android:defaultValue="medium" />
+            
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Backup &amp; Restore">
+        
+        <Preference
+            android:key="backup_restore"
+            android:title="Backup &amp; Restore"
+            android:summary="Manage your note backups"
+            android:icon="@drawable/ic_settings" />
+            
+        <SwitchPreferenceCompat
+            android:key="cloud_backup"
+            android:title="Cloud Backup"
+            android:summary="Automatically backup notes to cloud"
+            android:defaultValue="false" />
+            
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="About">
+        
+        <Preference
+            android:key="about"
+            android:title="About n0tez"
+            android:summary="Version and app information" />
+            
+        <Preference
+            android:key="privacy_policy"
+            android:title="Privacy Policy"
+            android:summary="View our privacy policy">
+            <intent android:action="android.intent.action.VIEW"
+                android:data="https://your-privacy-policy-url.com" />
+        </Preference>
+        
+        <Preference
+            android:key="terms_of_service"
+            android:title="Terms of Service"
+            android:summary="View our terms of service">
+            <intent android:action="android.intent.action.VIEW"
+                android:data="https://your-terms-url.com" />
+        </Preference>
+        
+    </PreferenceCategory>
+
+</PreferenceScreen>

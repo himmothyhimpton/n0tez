@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/floating_container"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/floating_widget_background"
+    android:padding="8dp">
+
+    <!-- Control buttons -->
+    <LinearLayout
+        android:id="@+id/control_buttons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_transparency"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="4dp"
+            android:padding="4dp"
+            app:icon="@drawable/ic_opacity"
+            app:iconSize="16dp"
+            app:iconTint="@android:color/white" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_minimize"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="4dp"
+            android:padding="4dp"
+            app:icon="@drawable/ic_minimize"
+            app:iconSize="16dp"
+            app:iconTint="@android:color/white" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_close"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="4dp"
+            app:icon="@drawable/ic_close"
+            app:iconSize="16dp"
+            app:iconTint="@android:color/white" />
+
+    </LinearLayout>
+
+    <!-- Main edit text -->
+    <EditText
+        android:id="@+id/floating_edit_text"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:background="@android:color/transparent"
+        android:gravity="top|start"
+        android:hint="Start typing your note..."
+        android:padding="12dp"
+        android:textColor="@android:color/white"
+        android:textColorHint="@android:color/darker_gray"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/control_buttons" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
