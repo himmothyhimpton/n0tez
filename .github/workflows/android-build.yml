@@ -99,7 +99,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: smoke-logcat
-        path: logcat.txt
+        path: ${{ github.workspace }}/logcat.txt
 
   # -------- signed release build (only if smoke green) --------
   build:
