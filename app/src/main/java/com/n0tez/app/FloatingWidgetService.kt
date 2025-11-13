@@ -1,6 +1,9 @@
 package com.n0tez.app
 
 import android.app.Service
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Build
@@ -24,6 +27,13 @@ class FloatingWidgetService : Service() {
     
     override fun onCreate() {
         super.onCreate()
+        try {
+            createNotificationChannel()
+            val notification = buildNotification()
+            startForeground(1, notification)
+        } catch (e: Exception) {
+            android.util.Log.e("FloatingWidget", "startForeground error", e)
+        }
         setupFloatingWidget()
     }
     
@@ -63,6 +73,36 @@ class FloatingWidgetService : Service() {
         } catch (e: Exception) {
             android.util.Log.e("FloatingWidget", "setupFloatingWidget error", e)
             stopSelf()
+        }
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                "n0tez_widget_channel",
+                "n0tez Widget",
+                NotificationManager.IMPORTANCE_MIN
+            )
+            val nm = getSystemService(NotificationManager::class.java)
+            nm?.createNotificationChannel(channel)
+        }
+    }
+
+    private fun buildNotification(): Notification {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notification.Builder(this, "n0tez_widget_channel")
+                .setSmallIcon(R.drawable.ic_note)
+                .setContentTitle("n0tez widget running")
+                .setContentText("Tap to open editor")
+                .setOngoing(true)
+                .build()
+        } else {
+            Notification.Builder(this)
+                .setSmallIcon(R.drawable.ic_note)
+                .setContentTitle("n0tez widget running")
+                .setContentText("Tap to open editor")
+                .setOngoing(true)
+                .build()
         }
     }
     
