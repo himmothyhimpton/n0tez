@@ -56,8 +56,11 @@ jobs:
       uses: reactivecircus/android-emulator-runner@v2
       with:
         api-level: 34
+        target: google_apis
         arch: x86_64
-        force-avd-creation: false
+        profile: Pixel_5
+        avd-name: n0tez-avd
+        force-avd-creation: true
         emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
         disable-animations: false
         script: echo "AVD ready"
@@ -66,7 +69,10 @@ jobs:
       uses: reactivecircus/android-emulator-runner@v2
       with:
         api-level: 34
+        target: google_apis
         arch: x86_64
+        profile: Pixel_5
+        avd-name: n0tez-avd
         force-avd-creation: false
         emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
         disable-animations: true
