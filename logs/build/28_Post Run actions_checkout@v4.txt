@@ -1,0 +1,10 @@
+﻿2025-11-13T12:06:40.0732981Z Post job cleanup.
+2025-11-13T12:06:40.1728695Z [command]/usr/bin/git version
+2025-11-13T12:06:40.1783268Z git version 2.51.2
+2025-11-13T12:06:40.1849740Z Temporarily overriding HOME='/home/runner/work/_temp/3d095fbb-d3e2-4fcc-bb26-34bd3b99b3b3' before making global git config changes
+2025-11-13T12:06:40.1850663Z Adding repository directory to the temporary git global config as a safe directory
+2025-11-13T12:06:40.1862235Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/n0tez/n0tez
+2025-11-13T12:06:40.1900553Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-11-13T12:06:40.1935674Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-11-13T12:06:40.2157862Z fatal: No url found for submodule path 'n0tez' in .gitmodules
+2025-11-13T12:06:40.2186730Z ##[warning]The process '/usr/bin/git' failed with exit code 128

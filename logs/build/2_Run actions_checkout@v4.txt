@@ -1,0 +1,69 @@
+﻿2025-11-13T12:04:06.7596067Z ##[group]Run actions/checkout@v4
+2025-11-13T12:04:06.7597394Z with:
+2025-11-13T12:04:06.7598193Z   repository: himmothyhimpton/n0tez
+2025-11-13T12:04:06.7599423Z   token: ***
+2025-11-13T12:04:06.7600160Z   ssh-strict: true
+2025-11-13T12:04:06.7600907Z   ssh-user: git
+2025-11-13T12:04:06.7601692Z   persist-credentials: true
+2025-11-13T12:04:06.7602531Z   clean: true
+2025-11-13T12:04:06.7603277Z   sparse-checkout-cone-mode: true
+2025-11-13T12:04:06.7604194Z   fetch-depth: 1
+2025-11-13T12:04:06.7604926Z   fetch-tags: false
+2025-11-13T12:04:06.7605674Z   show-progress: true
+2025-11-13T12:04:06.7606586Z   lfs: false
+2025-11-13T12:04:06.7607298Z   submodules: false
+2025-11-13T12:04:06.7608065Z   set-safe-directory: true
+2025-11-13T12:04:06.7609152Z ##[endgroup]
+2025-11-13T12:04:06.8718246Z Syncing repository: himmothyhimpton/n0tez
+2025-11-13T12:04:06.8720898Z ##[group]Getting Git version info
+2025-11-13T12:04:06.8722426Z Working directory is '/home/runner/work/n0tez/n0tez'
+2025-11-13T12:04:06.8724098Z [command]/usr/bin/git version
+2025-11-13T12:04:06.8780590Z git version 2.51.2
+2025-11-13T12:04:06.8807418Z ##[endgroup]
+2025-11-13T12:04:06.8822555Z Temporarily overriding HOME='/home/runner/work/_temp/bb78da7d-7c52-46bb-b477-5976fbc5e9a2' before making global git config changes
+2025-11-13T12:04:06.8825156Z Adding repository directory to the temporary git global config as a safe directory
+2025-11-13T12:04:06.8834805Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/n0tez/n0tez
+2025-11-13T12:04:06.8871532Z Deleting the contents of '/home/runner/work/n0tez/n0tez'
+2025-11-13T12:04:06.8876064Z ##[group]Initializing the repository
+2025-11-13T12:04:06.8880985Z [command]/usr/bin/git init /home/runner/work/n0tez/n0tez
+2025-11-13T12:04:06.8987278Z hint: Using 'master' as the name for the initial branch. This default branch name
+2025-11-13T12:04:06.8989816Z hint: is subject to change. To configure the initial branch name to use in all
+2025-11-13T12:04:06.8992229Z hint: of your new repositories, which will suppress this warning, call:
+2025-11-13T12:04:06.8994576Z hint:
+2025-11-13T12:04:06.8996312Z hint: 	git config --global init.defaultBranch <name>
+2025-11-13T12:04:06.8998271Z hint:
+2025-11-13T12:04:06.9000031Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2025-11-13T12:04:06.9003007Z hint: 'development'. The just-created branch can be renamed via this command:
+2025-11-13T12:04:06.9005432Z hint:
+2025-11-13T12:04:06.9006904Z hint: 	git branch -m <name>
+2025-11-13T12:04:06.9008294Z hint:
+2025-11-13T12:04:06.9010118Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2025-11-13T12:04:06.9012373Z Initialized empty Git repository in /home/runner/work/n0tez/n0tez/.git/
+2025-11-13T12:04:06.9015236Z [command]/usr/bin/git remote add origin https://github.com/himmothyhimpton/n0tez
+2025-11-13T12:04:06.9042854Z ##[endgroup]
+2025-11-13T12:04:06.9044339Z ##[group]Disabling automatic garbage collection
+2025-11-13T12:04:06.9046314Z [command]/usr/bin/git config --local gc.auto 0
+2025-11-13T12:04:06.9076164Z ##[endgroup]
+2025-11-13T12:04:06.9077927Z ##[group]Setting up auth
+2025-11-13T12:04:06.9083030Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-11-13T12:04:06.9113177Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-11-13T12:04:06.9432872Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2025-11-13T12:04:06.9463022Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2025-11-13T12:04:06.9689577Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2025-11-13T12:04:06.9726483Z ##[endgroup]
+2025-11-13T12:04:06.9728925Z ##[group]Fetching the repository
+2025-11-13T12:04:06.9746867Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +75c8937c67e505810a44306fefd13afe0a85f4eb:refs/remotes/origin/master
+2025-11-13T12:04:07.1594219Z From https://github.com/himmothyhimpton/n0tez
+2025-11-13T12:04:07.1598225Z  * [new ref]         75c8937c67e505810a44306fefd13afe0a85f4eb -> origin/master
+2025-11-13T12:04:07.1634612Z ##[endgroup]
+2025-11-13T12:04:07.1636547Z ##[group]Determining the checkout info
+2025-11-13T12:04:07.1638206Z ##[endgroup]
+2025-11-13T12:04:07.1641772Z [command]/usr/bin/git sparse-checkout disable
+2025-11-13T12:04:07.1683227Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2025-11-13T12:04:07.1713579Z ##[group]Checking out the ref
+2025-11-13T12:04:07.1718474Z [command]/usr/bin/git checkout --progress --force -B master refs/remotes/origin/master
+2025-11-13T12:04:07.1818591Z Reset branch 'master'
+2025-11-13T12:04:07.1820837Z branch 'master' set up to track 'origin/master'.
+2025-11-13T12:04:07.1827423Z ##[endgroup]
+2025-11-13T12:04:07.1861712Z [command]/usr/bin/git log -1 --format=%H
+2025-11-13T12:04:07.1883301Z 75c8937c67e505810a44306fefd13afe0a85f4eb

@@ -1,0 +1,8 @@
+﻿2025-11-13T12:06:39.6279145Z Post job cleanup.
+2025-11-13T12:06:39.6325423Z Post job cleanup.
+2025-11-13T12:06:39.8799770Z ##[warning]This job uses deprecated functionality from the 'gradle/gradle-build-action' action. Consult the Job Summary for more details.
+2025-11-13T12:06:39.8803165Z DEPRECATION: The action `gradle/gradle-build-action` has been replaced by `gradle/actions/setup-gradle`. See https://github.com/gradle/actions/blob/main/docs/deprecation-upgrade-guide.md#the-action-gradlegradle-build-action-has-been-replaced-by-gradleactionssetup-gradle
+2025-11-13T12:06:39.8805250Z In post-action step
+2025-11-13T12:06:39.8810111Z Cache is read-only: will not save state for use in subsequent builds.
+2025-11-13T12:06:39.8816609Z Generating Job Summary
+2025-11-13T12:06:39.8838027Z Completed post-action step

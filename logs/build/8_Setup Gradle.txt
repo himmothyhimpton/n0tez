@@ -1,0 +1,68 @@
+﻿2025-11-13T12:04:30.6994677Z ##[group]Run gradle/gradle-build-action@v3
+2025-11-13T12:04:30.6994988Z with:
+2025-11-13T12:04:30.6995158Z   gradle-version: 8.9
+2025-11-13T12:04:30.6995356Z   cache-disabled: false
+2025-11-13T12:04:30.6995543Z   cache-read-only: true
+2025-11-13T12:04:30.6995734Z   cache-write-only: false
+2025-11-13T12:04:30.6996188Z   cache-overwrite-existing: false
+2025-11-13T12:04:30.6996455Z   gradle-home-cache-includes: caches
+notifications
+
+2025-11-13T12:04:30.6996741Z   gradle-home-cache-cleanup: false
+2025-11-13T12:04:30.6996970Z   add-job-summary: always
+2025-11-13T12:04:30.6997186Z   add-job-summary-as-pr-comment: never
+2025-11-13T12:04:30.6997424Z   dependency-graph: disabled
+2025-11-13T12:04:30.6997668Z   dependency-graph-continue-on-failure: true
+2025-11-13T12:04:30.6997923Z   build-scan-publish: false
+2025-11-13T12:04:30.6998135Z   validate-wrappers: false
+2025-11-13T12:04:30.6998350Z   generate-job-summary: true
+2025-11-13T12:04:30.6998579Z   gradle-home-cache-strict-match: false
+2025-11-13T12:04:30.6998819Z   workflow-job-context: null
+2025-11-13T12:04:30.6999195Z   github-token: ***
+2025-11-13T12:04:30.6999377Z env:
+2025-11-13T12:04:30.6999639Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.17-10/x64
+2025-11-13T12:04:30.7000072Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.17-10/x64
+2025-11-13T12:04:30.7000440Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2025-11-13T12:04:30.7000697Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2025-11-13T12:04:30.7000935Z ##[endgroup]
+2025-11-13T12:04:30.7101580Z ##[group]Run gradle/actions/setup-gradle@v3.5.0
+2025-11-13T12:04:30.7101844Z with:
+2025-11-13T12:04:30.7102009Z   gradle-version: 8.9
+2025-11-13T12:04:30.7102203Z   cache-disabled: false
+2025-11-13T12:04:30.7102388Z   cache-read-only: true
+2025-11-13T12:04:30.7102578Z   cache-write-only: false
+2025-11-13T12:04:30.7102785Z   cache-overwrite-existing: false
+2025-11-13T12:04:30.7103062Z   gradle-home-cache-includes: caches
+notifications
+
+2025-11-13T12:04:30.7103348Z   gradle-home-cache-cleanup: false
+2025-11-13T12:04:30.7103590Z   add-job-summary: always
+2025-11-13T12:04:30.7103801Z   add-job-summary-as-pr-comment: never
+2025-11-13T12:04:30.7104057Z   dependency-graph: disabled
+2025-11-13T12:04:30.7104301Z   dependency-graph-continue-on-failure: true
+2025-11-13T12:04:30.7104555Z   build-scan-publish: false
+2025-11-13T12:04:30.7104766Z   validate-wrappers: false
+2025-11-13T12:04:30.7104968Z   generate-job-summary: true
+2025-11-13T12:04:30.7105195Z   gradle-home-cache-strict-match: false
+2025-11-13T12:04:30.7105441Z   workflow-job-context: null
+2025-11-13T12:04:30.7105920Z   github-token: ***
+2025-11-13T12:04:30.7106114Z env:
+2025-11-13T12:04:30.7106380Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.17-10/x64
+2025-11-13T12:04:30.7106815Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.17-10/x64
+2025-11-13T12:04:30.7107344Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2025-11-13T12:04:30.7107606Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2025-11-13T12:04:30.7107880Z   GRADLE_ACTION_ID: gradle/gradle-build-action
+2025-11-13T12:04:30.7108119Z ##[endgroup]
+2025-11-13T12:04:31.0254490Z Merged default JDK locations into /home/runner/.m2/toolchains.xml
+2025-11-13T12:04:31.0258981Z ##[group]Restore Gradle state from cache
+2025-11-13T12:04:31.1473660Z ##[warning]Failed to restore gradle-home-v1|Linux|build[cf940f3ebadc02090f040e056cc1a147]-75c8937c67e505810a44306fefd13afe0a85f4eb: Error: Cache service responded with 400
+2025-11-13T12:04:31.1528287Z Gradle User Home cache not found. Will initialize empty.
+2025-11-13T12:04:31.1529090Z ##[endgroup]
+2025-11-13T12:04:31.2224807Z ##[group]Provision Gradle 8.9
+2025-11-13T12:04:31.2817451Z ##[warning]Restore Gradle distribution 8.9 failed: Error: Cache service responded with 400
+2025-11-13T12:04:31.2818482Z Gradle distribution 8.9 not found in cache. Will download.
+2025-11-13T12:04:32.1013729Z Downloaded https://services.gradle.org/distributions/gradle-8.9-bin.zip to /home/runner/gradle-installations/downloads/gradle-8.9-bin.zip (size 136114148)
+2025-11-13T12:04:32.1015682Z [command]/usr/bin/unzip -o -q /home/runner/gradle-installations/downloads/gradle-8.9-bin.zip
+2025-11-13T12:04:33.1087063Z Extracted Gradle 8.9 to /home/runner/gradle-installations/installs/gradle-8.9
+2025-11-13T12:04:33.1090560Z Provisioned Gradle executable /home/runner/gradle-installations/installs/gradle-8.9/bin/gradle
+2025-11-13T12:04:33.1092434Z ##[endgroup]
