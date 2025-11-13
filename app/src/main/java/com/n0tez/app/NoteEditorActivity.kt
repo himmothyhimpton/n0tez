@@ -27,41 +27,46 @@ class NoteEditorActivity : AppCompatActivity() {
     }
     
     private fun setupUI() {
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "New Note"
-        
-        binding.apply {
-            // Setup transparency slider
-            sliderTransparency.addOnChangeListener { _, value, _ ->
-                val alpha = value / 100f
-                noteContainer.alpha = alpha
-                saveTransparencyPreference(value.toInt())
-            }
+        try {
+            setSupportActionBar(binding.toolbar)
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+            supportActionBar?.title = "New Note"
             
-            // Setup text editor
-            noteEditText.setBackgroundColor(android.graphics.Color.TRANSPARENT)
-            noteEditText.setTextColor(android.graphics.Color.WHITE)
-            
-            // Setup save button
-            btnSave.setOnClickListener {
-                saveNote()
+            binding.apply {
+                // Setup transparency slider
+                sliderTransparency.addOnChangeListener { _, value, _ ->
+                    val alpha = value / 100f
+                    noteContainer.alpha = alpha
+                    saveTransparencyPreference(value.toInt())
+                }
+                
+                // Setup text editor
+                noteEditText.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                noteEditText.setTextColor(android.graphics.Color.WHITE)
+                
+                // Setup save button
+                btnSave.setOnClickListener {
+                    saveNote()
+                }
+                
+                // Setup share button
+                btnShare.setOnClickListener {
+                    shareNote()
+                }
+                
+                // Setup copy button
+                btnCopy.setOnClickListener {
+                    copyNoteContent()
+                }
+                
+                // Setup paste button
+                btnPaste.setOnClickListener {
+                    pasteContent()
+                }
             }
-            
-            // Setup share button
-            btnShare.setOnClickListener {
-                shareNote()
-            }
-            
-            // Setup copy button
-            btnCopy.setOnClickListener {
-                copyNoteContent()
-            }
-            
-            // Setup paste button
-            btnPaste.setOnClickListener {
-                pasteContent()
-            }
+        } catch (e: Exception) {
+            android.util.Log.e("NoteEditor", "setupUI error", e)
+            showMessage("UI setup failed: ${e.message}")
         }
     }
     

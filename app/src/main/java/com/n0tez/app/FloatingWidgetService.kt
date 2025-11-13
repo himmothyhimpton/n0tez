@@ -28,77 +28,87 @@ class FloatingWidgetService : Service() {
     }
     
     private fun setupFloatingWidget() {
-        windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
-        
-        // Inflate floating widget layout
-        binding = FloatingWidgetBinding.inflate(LayoutInflater.from(this))
-        floatingView = binding.root
-        
-        // Setup layout parameters
-        val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-        } else {
-            WindowManager.LayoutParams.TYPE_PHONE
+        try {
+            windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+            
+            // Inflate floating widget layout
+            binding = FloatingWidgetBinding.inflate(LayoutInflater.from(this))
+            floatingView = binding.root
+            
+            // Setup layout parameters
+            val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+            } else {
+                WindowManager.LayoutParams.TYPE_PHONE
+            }
+            
+            layoutParams = WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                layoutType,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT
+            )
+            
+            // Position the widget
+            layoutParams?.gravity = Gravity.TOP or Gravity.START
+            layoutParams?.x = 100
+            layoutParams?.y = 100
+            
+            // Add view to window manager
+            windowManager.addView(floatingView, layoutParams)
+            
+            setupWidgetUI()
+            setupDragAndDrop()
+        } catch (e: Exception) {
+            android.util.Log.e("FloatingWidget", "setupFloatingWidget error", e)
+            stopSelf()
         }
-        
-        layoutParams = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            layoutType,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-            PixelFormat.TRANSLUCENT
-        )
-        
-        // Position the widget
-        layoutParams?.gravity = Gravity.TOP or Gravity.START
-        layoutParams?.x = 100
-        layoutParams?.y = 100
-        
-        // Add view to window manager
-        windowManager.addView(floatingView, layoutParams)
-        
-        setupWidgetUI()
-        setupDragAndDrop()
     }
     
     private fun setupWidgetUI() {
-        binding.apply {
-            // Set initial transparency
-            setTransparency(transparencyLevel)
-            
-            // Setup edit text
-            floatingEditText.setBackgroundColor(android.graphics.Color.TRANSPARENT)
-            floatingEditText.setTextColor(android.graphics.Color.WHITE)
-            
-            // Setup control buttons
-            btnClose.setOnClickListener {
-                stopSelf()
-            }
-            
-            btnMinimize.setOnClickListener {
-                floatingEditText.visibility = if (floatingEditText.visibility == View.VISIBLE) {
-                    View.GONE
-                } else {
-                    View.VISIBLE
-                }
-            }
-            
-            btnTransparency.setOnClickListener {
-                transparencyLevel = when (transparencyLevel) {
-                    0.3f -> 0.5f
-                    0.5f -> 0.7f
-                    0.7f -> 0.9f
-                    else -> 0.3f
-                }
+        try {
+            binding.apply {
+                // Set initial transparency
                 setTransparency(transparencyLevel)
-            }
-            
-            // Auto-save functionality
-            floatingEditText.setOnFocusChangeListener { _, hasFocus ->
-                if (!hasFocus) {
-                    saveCurrentNote()
+                
+                // Setup edit text
+                floatingEditText.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                floatingEditText.setTextColor(android.graphics.Color.WHITE)
+                
+                // Setup control buttons
+                btnClose.setOnClickListener {
+                    stopSelf()
+                }
+                
+                btnMinimize.setOnClickListener {
+                    floatingEditText.visibility = if (floatingEditText.visibility == View.VISIBLE) {
+                        View.GONE
+                    } else {
+                        View.VISIBLE
+                    }
+                }
+                
+                btnTransparency.setOnClickListener {
+                    transparencyLevel = when (transparencyLevel) {
+                        0.3f -> 0.5f
+                        0.5f -> 0.7f
+                        0.7f -> 0.9f
+                        else -> 0.3f
+                    }
+                    setTransparency(transparencyLevel)
+                }
+                
+                // Auto-save functionality
+                floatingEditText.setOnFocusChangeListener { _, hasFocus ->
+                    if (!hasFocus) {
+                        saveCurrentNote()
+                    }
                 }
             }
+        } catch (e: Exception) {
+            android.util.Log.e("FloatingWidget", "setupWidgetUI error", e)
+            stopSelf()
         }
     }
     
@@ -140,31 +150,43 @@ class FloatingWidgetService : Service() {
     }
     
     private fun saveCurrentNote() {
-        val content = binding.floatingEditText.text.toString()
-        if (content != currentNoteContent) {
-            currentNoteContent = content
-            serviceScope.launch {
-                // Save to database or shared preferences
-                saveNoteToStorage(content)
+        try {
+            val content = binding.floatingEditText.text.toString()
+            if (content != currentNoteContent) {
+                currentNoteContent = content
+                serviceScope.launch {
+                    // Save to database or shared preferences
+                    saveNoteToStorage(content)
+                }
             }
+        } catch (e: Exception) {
+            android.util.Log.e("FloatingWidget", "saveCurrentNote error", e)
         }
     }
     
     private suspend fun saveNoteToStorage(content: String) {
         // Implementation for saving notes to local storage
         withContext(Dispatchers.IO) {
-            val sharedPrefs = getSharedPreferences("n0tez_prefs", MODE_PRIVATE)
-            sharedPrefs.edit().putString("current_note", content).apply()
+            try {
+                val sharedPrefs = getSharedPreferences("n0tez_prefs", MODE_PRIVATE)
+                sharedPrefs.edit().putString("current_note", content).apply()
+            } catch (e: Exception) {
+                android.util.Log.e("FloatingWidget", "saveNoteToStorage error", e)
+            }
         }
     }
     
     override fun onDestroy() {
-        super.onDestroy()
-        saveCurrentNote()
-        serviceScope.cancel()
-        if (::floatingView.isInitialized) {
-            windowManager.removeView(floatingView)
+        try {
+            saveCurrentNote()
+            serviceScope.cancel()
+            if (::floatingView.isInitialized) {
+                windowManager.removeView(floatingView)
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("FloatingWidget", "onDestroy error", e)
         }
+        super.onDestroy()
     }
     
     override fun onBind(intent: Intent?): IBinder? = null

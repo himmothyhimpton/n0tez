@@ -89,13 +89,18 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun startFloatingWidget() {
-        val intent = Intent(this, FloatingWidgetService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent)
-        } else {
-            startService(intent)
+        try {
+            val intent = Intent(this, FloatingWidgetService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent)
+            } else {
+                startService(intent)
+            }
+            Toast.makeText(this, "Floating widget started", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            android.util.Log.e("MainActivity", "startFloatingWidget error", e)
+            Toast.makeText(this, "Failed to start widget: ${e.message}", Toast.LENGTH_LONG).show()
         }
-        Toast.makeText(this, "Floating widget started", Toast.LENGTH_SHORT).show()
     }
     
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
