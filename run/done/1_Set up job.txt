@@ -1,0 +1,40 @@
+﻿2025-11-13T16:54:57.5293780Z Current runner version: '2.329.0'
+2025-11-13T16:54:57.5320601Z ##[group]Runner Image Provisioner
+2025-11-13T16:54:57.5321509Z Hosted Compute Agent
+2025-11-13T16:54:57.5322064Z Version: 20251016.436
+2025-11-13T16:54:57.5322675Z Commit: 8ab8ac8bfd662a3739dab9fe09456aba92132568
+2025-11-13T16:54:57.5323390Z Build Date: 2025-10-15T20:44:12Z
+2025-11-13T16:54:57.5324007Z ##[endgroup]
+2025-11-13T16:54:57.5324539Z ##[group]Operating System
+2025-11-13T16:54:57.5325291Z Ubuntu
+2025-11-13T16:54:57.5325789Z 24.04.3
+2025-11-13T16:54:57.5326281Z LTS
+2025-11-13T16:54:57.5326707Z ##[endgroup]
+2025-11-13T16:54:57.5327313Z ##[group]Runner Image
+2025-11-13T16:54:57.5327916Z Image: ubuntu-24.04
+2025-11-13T16:54:57.5328393Z Version: 20251102.99.1
+2025-11-13T16:54:57.5329506Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20251102.99/images/ubuntu/Ubuntu2404-Readme.md
+2025-11-13T16:54:57.5330827Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20251102.99
+2025-11-13T16:54:57.5332043Z ##[endgroup]
+2025-11-13T16:54:57.5334595Z ##[group]GITHUB_TOKEN Permissions
+2025-11-13T16:54:57.5336954Z Actions: write
+2025-11-13T16:54:57.5337548Z ArtifactMetadata: write
+2025-11-13T16:54:57.5338114Z Attestations: write
+2025-11-13T16:54:57.5338715Z Checks: write
+2025-11-13T16:54:57.5339254Z Contents: write
+2025-11-13T16:54:57.5339744Z Deployments: write
+2025-11-13T16:54:57.5340345Z Discussions: write
+2025-11-13T16:54:57.5340824Z Issues: write
+2025-11-13T16:54:57.5341339Z Metadata: read
+2025-11-13T16:54:57.5341853Z Models: read
+2025-11-13T16:54:57.5342419Z Packages: write
+2025-11-13T16:54:57.5342950Z Pages: write
+2025-11-13T16:54:57.5343480Z PullRequests: write
+2025-11-13T16:54:57.5344061Z RepositoryProjects: write
+2025-11-13T16:54:57.5344727Z SecurityEvents: write
+2025-11-13T16:54:57.5345707Z Statuses: write
+2025-11-13T16:54:57.5346287Z ##[endgroup]
+2025-11-13T16:54:57.5348382Z Secret source: Actions
+2025-11-13T16:54:57.5349195Z Prepare workflow directory
+2025-11-13T16:54:57.5683005Z Prepare all required actions
+2025-11-13T16:54:57.5776789Z Complete job name: done

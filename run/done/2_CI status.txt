@@ -1,0 +1,9 @@
+﻿2025-11-13T16:54:57.6525868Z ##[group]Run echo "Lint & unit tests : failure"
+2025-11-13T16:54:57.6526784Z [36;1mecho "Lint & unit tests : failure"[0m
+2025-11-13T16:54:57.6527449Z [36;1mecho "Smoke test        : skipped"[0m
+2025-11-13T16:54:57.6528209Z [36;1mecho "Signed build      : skipped"[0m
+2025-11-13T16:54:57.6924614Z shell: /usr/bin/bash -e {0}
+2025-11-13T16:54:57.6926364Z ##[endgroup]
+2025-11-13T16:54:57.7154657Z Lint & unit tests : failure
+2025-11-13T16:54:57.7155883Z Smoke test        : skipped
+2025-11-13T16:54:57.7156957Z Signed build      : skipped

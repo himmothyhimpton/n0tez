@@ -1,0 +1,50 @@
+﻿2025-11-13T16:54:57.5294671Z Current runner version: '2.329.0'
+2025-11-13T16:54:57.5320626Z ##[group]Runner Image Provisioner
+2025-11-13T16:54:57.5321514Z Hosted Compute Agent
+2025-11-13T16:54:57.5322067Z Version: 20251016.436
+2025-11-13T16:54:57.5322679Z Commit: 8ab8ac8bfd662a3739dab9fe09456aba92132568
+2025-11-13T16:54:57.5323394Z Build Date: 2025-10-15T20:44:12Z
+2025-11-13T16:54:57.5324010Z ##[endgroup]
+2025-11-13T16:54:57.5324541Z ##[group]Operating System
+2025-11-13T16:54:57.5325297Z Ubuntu
+2025-11-13T16:54:57.5325793Z 24.04.3
+2025-11-13T16:54:57.5326284Z LTS
+2025-11-13T16:54:57.5326710Z ##[endgroup]
+2025-11-13T16:54:57.5327316Z ##[group]Runner Image
+2025-11-13T16:54:57.5327919Z Image: ubuntu-24.04
+2025-11-13T16:54:57.5328397Z Version: 20251102.99.1
+2025-11-13T16:54:57.5329512Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20251102.99/images/ubuntu/Ubuntu2404-Readme.md
+2025-11-13T16:54:57.5331013Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20251102.99
+2025-11-13T16:54:57.5332047Z ##[endgroup]
+2025-11-13T16:54:57.5334600Z ##[group]GITHUB_TOKEN Permissions
+2025-11-13T16:54:57.5336975Z Actions: write
+2025-11-13T16:54:57.5337551Z ArtifactMetadata: write
+2025-11-13T16:54:57.5338117Z Attestations: write
+2025-11-13T16:54:57.5338718Z Checks: write
+2025-11-13T16:54:57.5339256Z Contents: write
+2025-11-13T16:54:57.5339747Z Deployments: write
+2025-11-13T16:54:57.5340348Z Discussions: write
+2025-11-13T16:54:57.5340827Z Issues: write
+2025-11-13T16:54:57.5341342Z Metadata: read
+2025-11-13T16:54:57.5341857Z Models: read
+2025-11-13T16:54:57.5342422Z Packages: write
+2025-11-13T16:54:57.5342952Z Pages: write
+2025-11-13T16:54:57.5343483Z PullRequests: write
+2025-11-13T16:54:57.5344065Z RepositoryProjects: write
+2025-11-13T16:54:57.5344730Z SecurityEvents: write
+2025-11-13T16:54:57.5345718Z Statuses: write
+2025-11-13T16:54:57.5346290Z ##[endgroup]
+2025-11-13T16:54:57.5348399Z Secret source: Actions
+2025-11-13T16:54:57.5349200Z Prepare workflow directory
+2025-11-13T16:54:57.5683062Z Prepare all required actions
+2025-11-13T16:54:57.5776818Z Complete job name: done
+2025-11-13T16:54:57.6525899Z ##[group]Run echo "Lint & unit tests : failure"
+2025-11-13T16:54:57.6526790Z [36;1mecho "Lint & unit tests : failure"[0m
+2025-11-13T16:54:57.6527453Z [36;1mecho "Smoke test        : skipped"[0m
+2025-11-13T16:54:57.6528212Z [36;1mecho "Signed build      : skipped"[0m
+2025-11-13T16:54:57.6924657Z shell: /usr/bin/bash -e {0}
+2025-11-13T16:54:57.6926389Z ##[endgroup]
+2025-11-13T16:54:57.7154699Z Lint & unit tests : failure
+2025-11-13T16:54:57.7155899Z Smoke test        : skipped
+2025-11-13T16:54:57.7156972Z Signed build      : skipped
+2025-11-13T16:54:57.7302895Z Cleaning up orphan processes

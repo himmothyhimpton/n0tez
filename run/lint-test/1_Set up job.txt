@@ -1,0 +1,48 @@
+﻿2025-11-13T16:52:18.5485302Z Current runner version: '2.329.0'
+2025-11-13T16:52:18.5514277Z ##[group]Runner Image Provisioner
+2025-11-13T16:52:18.5515130Z Hosted Compute Agent
+2025-11-13T16:52:18.5515706Z Version: 20251016.436
+2025-11-13T16:52:18.5516338Z Commit: 8ab8ac8bfd662a3739dab9fe09456aba92132568
+2025-11-13T16:52:18.5517077Z Build Date: 2025-10-15T20:44:12Z
+2025-11-13T16:52:18.5517646Z ##[endgroup]
+2025-11-13T16:52:18.5518444Z ##[group]Operating System
+2025-11-13T16:52:18.5519011Z Ubuntu
+2025-11-13T16:52:18.5519508Z 24.04.3
+2025-11-13T16:52:18.5520018Z LTS
+2025-11-13T16:52:18.5520471Z ##[endgroup]
+2025-11-13T16:52:18.5520981Z ##[group]Runner Image
+2025-11-13T16:52:18.5521533Z Image: ubuntu-24.04
+2025-11-13T16:52:18.5522131Z Version: 20251102.99.1
+2025-11-13T16:52:18.5523135Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20251102.99/images/ubuntu/Ubuntu2404-Readme.md
+2025-11-13T16:52:18.5524530Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20251102.99
+2025-11-13T16:52:18.5525684Z ##[endgroup]
+2025-11-13T16:52:18.5528628Z ##[group]GITHUB_TOKEN Permissions
+2025-11-13T16:52:18.5530710Z Actions: write
+2025-11-13T16:52:18.5531405Z ArtifactMetadata: write
+2025-11-13T16:52:18.5531978Z Attestations: write
+2025-11-13T16:52:18.5532489Z Checks: write
+2025-11-13T16:52:18.5532975Z Contents: write
+2025-11-13T16:52:18.5533634Z Deployments: write
+2025-11-13T16:52:18.5534135Z Discussions: write
+2025-11-13T16:52:18.5534683Z Issues: write
+2025-11-13T16:52:18.5535204Z Metadata: read
+2025-11-13T16:52:18.5535678Z Models: read
+2025-11-13T16:52:18.5536261Z Packages: write
+2025-11-13T16:52:18.5536779Z Pages: write
+2025-11-13T16:52:18.5537283Z PullRequests: write
+2025-11-13T16:52:18.5537784Z RepositoryProjects: write
+2025-11-13T16:52:18.5538884Z SecurityEvents: write
+2025-11-13T16:52:18.5539485Z Statuses: write
+2025-11-13T16:52:18.5539983Z ##[endgroup]
+2025-11-13T16:52:18.5542436Z Secret source: Actions
+2025-11-13T16:52:18.5543546Z Prepare workflow directory
+2025-11-13T16:52:18.5860277Z Prepare all required actions
+2025-11-13T16:52:18.5898361Z Getting action download info
+2025-11-13T16:52:18.9734671Z Download action repository 'actions/checkout@v4' (SHA:08eba0b27e820071cde6df949e0beb9ba4906955)
+2025-11-13T16:52:19.0820968Z Download action repository 'actions/setup-java@v4' (SHA:c5195efecf7bdfc987ee8bae7a71cb8b11521c00)
+2025-11-13T16:52:19.3962147Z Download action repository 'android-actions/setup-android@v3' (SHA:9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407)
+2025-11-13T16:52:19.5544600Z Download action repository 'gradle/gradle-build-action@v3' (SHA:ac2d340dc04d9e1113182899e983b5400c17cda1)
+2025-11-13T16:52:19.8191603Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2025-11-13T16:52:20.0471900Z Getting action download info
+2025-11-13T16:52:20.2133580Z Download action repository 'gradle/actions@v3.5.0' (SHA:d9c87d481d55275bb5441eef3fe0e46805f9ef70)
+2025-11-13T16:52:20.8271656Z Complete job name: lint-test
