@@ -52,11 +52,6 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun checkPermissions() {
-        // Check overlay permission
-        if (!hasOverlayPermission()) {
-            requestOverlayPermission()
-        }
-        
         // Check storage permission for Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) 
