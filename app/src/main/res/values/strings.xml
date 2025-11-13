@@ -33,7 +33,7 @@
     <string name="small">Small</string>
     <string name="medium">Medium</string>
     <string name="large">Large</string>
-    <string name="backup_restore">Backup & Restore</string>
+    <string name="backup_restore">Backup &amp; Restore</string>
     <string name="cloud_backup">Cloud Backup</string>
     <string name="local_backup">Local Backup</string>
     <string name="restore_backup">Restore Backup</string>
