@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6200EE;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3700B3;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Transparent effect -->
+    <filter id="transparency" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.7"/>
+      </feComponentTransfer>
+    </filter>
+  </defs>
+  
+  <!-- Main background -->
+  <rect width="1024" height="1024" rx="200" fill="url(#bgGradient)"/>
+  
+  <!-- Transparent overlay effect -->
+  <rect x="100" y="100" width="824" height="824" rx="150" fill="#FFFFFF" opacity="0.1" filter="url(#transparency)"/>
+  
+  <!-- Notepad base -->
+  <rect x="200" y="250" width="624" height="524" rx="40" fill="#FFFFFF" opacity="0.9"/>
+  
+  <!-- Notepad lines -->
+  <line x1="280" y1="350" x2="744" y2="350" stroke="#E0E0E0" stroke-width="3"/>
+  <line x1="280" y1="420" x2="744" y2="420" stroke="#E0E0E0" stroke-width="3"/>
+  <line x1="280" y1="490" x2="744" y2="490" stroke="#E0E0E0" stroke-width="3"/>
+  <line x1="280" y1="560" x2="744" y2="560" stroke="#E0E0E0" stroke-width="3"/>
+  <line x1="280" y1="630" x2="744" y2="630" stroke="#E0E0E0" stroke-width="3"/>
+  
+  <!-- Text content (showing through transparency) -->
+  <text x="300" y="330" font-family="Arial, sans-serif" font-size="80" fill="#333333" opacity="0.8">n0tez</text>
+  <text x="300" y="400" font-family="Arial, sans-serif" font-size="45" fill="#666666" opacity="0.7">Transparent</text>
+  <text x="300" y="470" font-family="Arial, sans-serif" font-size="45" fill="#666666" opacity="0.7">Notes</text>
+  
+  <!-- Floating widget indicator -->
+  <circle cx="750" cy="750" r="80" fill="#03DAC5" opacity="0.8"/>
+  <rect x="720" y="720" width="60" height="8" rx="4" fill="#FFFFFF"/>
+  <rect x="720" y="740" width="60" height="8" rx="4" fill="#FFFFFF"/>
+  <rect x="720" y="760" width="60" height="8" rx="4" fill="#FFFFFF"/>
+  
+  <!-- Transparency indicator -->
+  <circle cx="300" cy="750" r="60" fill="#FFFFFF" opacity="0.3"/>
+  <circle cx="300" cy="750" r="40" fill="#FFFFFF" opacity="0.6"/>
+  <circle cx="300" cy="750" r="20" fill="#FFFFFF" opacity="0.9"/>
+  
+  <!-- Subtle glow effect -->
+  <circle cx="512" cy="512" r="400" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.2"/>
+</svg>
