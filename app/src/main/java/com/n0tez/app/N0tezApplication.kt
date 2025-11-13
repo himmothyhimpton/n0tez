@@ -11,17 +11,16 @@ class N0tezApplication : Application() {
         super.onCreate()
         instance = this
         
-        // Initialize Firebase
-        FirebaseApp.initializeApp(this)
-        
-        // Enable Crashlytics
-        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
-        
-        // Set user properties for analytics
-        val pInfo = packageManager.getPackageInfo(packageName, 0)
-        FirebaseCrashlytics.getInstance().setCustomKey("app_version", pInfo.versionName ?: "")
-        val buildCode = try { pInfo.longVersionCode } catch (e: Throwable) { pInfo.versionCode.toLong() }
-        FirebaseCrashlytics.getInstance().setCustomKey("app_build", buildCode)
+        try {
+            FirebaseApp.initializeApp(this)
+            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
+            val pInfo = packageManager.getPackageInfo(packageName, 0)
+            FirebaseCrashlytics.getInstance().setCustomKey("app_version", pInfo.versionName ?: "")
+            val buildCode = try { pInfo.longVersionCode } catch (e: Throwable) { pInfo.versionCode.toLong() }
+            FirebaseCrashlytics.getInstance().setCustomKey("app_build", buildCode)
+        } catch (e: Throwable) {
+            android.util.Log.e("N0tezApplication", "Firebase init error", e)
+        }
     }
     
     companion object {
