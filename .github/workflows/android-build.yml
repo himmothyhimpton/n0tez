@@ -83,6 +83,8 @@ jobs:
           adb logcat -c
           adb shell am start -W -n com.n0tez.app/.MainActivity || true
           sleep 5
+          adb shell am start -W -n com.n0tez.app/.NoteEditorActivity || true
+          sleep 3
           # tap "Create Note" via input coords (x=540 y=600 is center-card on 1080p)
           adb shell input tap 540 600 || true
           sleep 3
