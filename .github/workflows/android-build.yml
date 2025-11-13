@@ -29,7 +29,6 @@ jobs:
 
   # -------- emulator smoke test (catches startup crashes) --------
   smoke-test:
-    needs: lint-test
     runs-on: macos-latest      # hardware accel on macOS runners
     timeout-minutes: 15
     steps:
