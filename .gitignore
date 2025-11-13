@@ -1,0 +1,6 @@
+.git-credentials
+*.keystore
+*.jks
+.idea/
+.DS_Store
+*.iml
