@@ -32,20 +32,20 @@ class MainActivity : AppCompatActivity() {
     
     private fun setupUI() {
         binding.apply {
-            // Setup main activity UI
-            btnCreateNote.setOnClickListener {
+            // Card taps
+            cardCreateNote.setOnClickListener {
                 startActivity(Intent(this@MainActivity, NoteEditorActivity::class.java))
             }
-            
-            btnFloatingWidget.setOnClickListener {
+
+            cardFloatingWidget.setOnClickListener {
                 if (hasOverlayPermission()) {
                     startFloatingWidget()
                 } else {
                     requestOverlayPermission()
                 }
             }
-            
-            btnSettings.setOnClickListener {
+
+            cardSettings.setOnClickListener {
                 startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
             }
         }
