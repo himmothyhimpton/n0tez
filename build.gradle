@@ -16,12 +16,7 @@ plugins {
     id 'org.jetbrains.kotlin.android' version '1.9.22' apply false
 }
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
+// Repositories are defined in settings.gradle using dependencyResolutionManagement
 
 task clean(type: Delete) {
     delete rootProject.buildDir
