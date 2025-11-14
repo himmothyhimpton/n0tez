@@ -77,23 +77,40 @@ jobs:
         emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
         disable-animations: true
         script: |
+          set -e
+          echo "=== Starting smoke test ==="
           adb wait-for-device
           adb devices
-          adb install -r app/build/outputs/apk/debug/app-debug.apk || true
-          adb shell pm list packages | grep com.n0tez.app || true
-          adb logcat -c || true
-          adb shell am start -W -n com.n0tez.app/.MainActivity || true
+          echo "=== Installing APK ==="
+          adb install -r app/build/outputs/apk/debug/app-debug.apk || echo "Install failed, continuing..."
+          adb shell pm list packages | grep com.n0tez.app || echo "Package not found, continuing..."
+          echo "=== Clearing logcat ==="
+          adb logcat -c || echo "Logcat clear failed, continuing..."
+          echo "=== Starting MainActivity ==="
+          adb shell am start -W -n com.n0tez.app/.MainActivity || echo "MainActivity start failed, continuing..."
           sleep 5
-          adb shell am start -W -n com.n0tez.app/.NoteEditorActivity || true
+          echo "=== Starting NoteEditorActivity ==="
+          adb shell am start -W -n com.n0tez.app/.NoteEditorActivity || echo "NoteEditorActivity start failed, continuing..."
           sleep 3
+          echo "=== Tapping Create Note ==="
           # tap "Create Note" via input coords (x=540 y=600 is center-card on 1080p)
-          adb shell input tap 540 600 || true
+          adb shell input tap 540 600 || echo "Tap failed, continuing..."
           sleep 3
-          adb logcat -d | tail -n 400 > logcat.txt || true
-          if grep -q 'FATAL\|AndroidRuntime\|ANR' logcat.txt; then
-            echo "❌ Smoke test FAILED"; exit 1
+          echo "=== Capturing logcat ==="
+          mkdir -p ${{ github.workspace }}
+          adb logcat -d > ${{ github.workspace }}/logcat.txt || echo "Logcat capture failed, creating empty file"
+          if [ ! -f ${{ github.workspace }}/logcat.txt ]; then
+            echo "Logcat file not created, creating empty file"
+            touch ${{ github.workspace }}/logcat.txt
+          fi
+          echo "=== Analyzing logcat ==="
+          tail -n 400 ${{ github.workspace }}/logcat.txt || echo "No logcat content"
+          if grep -q 'FATAL\|AndroidRuntime\|ANR' ${{ github.workspace }}/logcat.txt; then
+            echo "❌ Smoke test FAILED - Found crash in logcat"
+            cat ${{ github.workspace }}/logcat.txt
+            exit 1
           else
-            echo "✅ Smoke test PASSED"
+            echo "✅ Smoke test PASSED - No crashes detected"
           fi
 
     - name: Upload smoke-test logcat
