@@ -49,14 +49,14 @@ jobs:
         path: |
           ~/.android/avd/*
           ~/.android/adb*
-        key: avd-api34
+        key: avd-api33
 
-    - name: Create AVD 34
+    - name: Create AVD 33
       if: steps.avd-cache.outputs.cache-hit != 'true'
       uses: reactivecircus/android-emulator-runner@v2
       with:
-        api-level: 34
-        target: google_apis
+        api-level: 33
+        target: default
         arch: x86_64
         profile: Pixel_5
         avd-name: n0tez-avd
@@ -68,8 +68,8 @@ jobs:
     - name: Smoke test on emulator
       uses: reactivecircus/android-emulator-runner@v2
       with:
-        api-level: 34
-        target: google_apis
+        api-level: 33
+        target: default
         arch: x86_64
         profile: Pixel_5
         avd-name: n0tez-avd

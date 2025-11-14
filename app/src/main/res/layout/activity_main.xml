@@ -204,35 +204,6 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Hidden buttons for click handling -->
-    <Button
-        android:id="@+id/btnCreateNote"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/cardCreateNote"
-        app:layout_constraintEnd_toEndOf="@+id/cardCreateNote"
-        app:layout_constraintStart_toStartOf="@+id/cardCreateNote"
-        app:layout_constraintTop_toTopOf="@+id/cardCreateNote" />
 
-    <Button
-        android:id="@+id/btnFloatingWidget"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/cardFloatingWidget"
-        app:layout_constraintEnd_toEndOf="@+id/cardFloatingWidget"
-        app:layout_constraintStart_toStartOf="@+id/cardFloatingWidget"
-        app:layout_constraintTop_toTopOf="@+id/cardFloatingWidget" />
-
-    <Button
-        android:id="@+id/btnSettings"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/cardSettings"
-        app:layout_constraintEnd_toEndOf="@+id/cardSettings"
-        app:layout_constraintStart_toStartOf="@+id/cardSettings"
-        app:layout_constraintTop_toTopOf="@+id/cardSettings" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
