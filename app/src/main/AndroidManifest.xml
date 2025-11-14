@@ -50,8 +50,7 @@
         <service
             android:name=".FloatingWidgetService"
             android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="mediaProjection" />
+            android:exported="false" />
         
         <!-- Settings Activity -->
         <activity
