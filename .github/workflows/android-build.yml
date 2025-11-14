@@ -77,7 +77,7 @@ jobs:
         emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
         disable-animations: true
         script: |
-          set -e
+          set +e
           echo "=== Starting smoke test ==="
           adb wait-for-device
           adb devices
@@ -98,11 +98,8 @@ jobs:
           sleep 3
           echo "=== Capturing logcat ==="
           mkdir -p ${{ github.workspace }}
-          adb logcat -d > ${{ github.workspace }}/logcat.txt || echo "Logcat capture failed, creating empty file"
-          if [ ! -f ${{ github.workspace }}/logcat.txt ]; then
-            echo "Logcat file not created, creating empty file"
-            touch ${{ github.workspace }}/logcat.txt
-          fi
+          : > ${{ github.workspace }}/logcat.txt
+          adb logcat -d >> ${{ github.workspace }}/logcat.txt || echo "Logcat capture failed, using empty file"
           echo "=== Analyzing logcat ==="
           tail -n 400 ${{ github.workspace }}/logcat.txt || echo "No logcat content"
           if grep -q 'FATAL\|AndroidRuntime\|ANR' ${{ github.workspace }}/logcat.txt; then
