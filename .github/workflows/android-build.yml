@@ -16,13 +16,13 @@ jobs:
       with: { java-version: '17', distribution: 'temurin' }
     - uses: android-actions/setup-android@v3
     - uses: gradle/gradle-build-action@v3
-      with: { gradle-version: 8.4 }
+      with: { gradle-version: 8.9 }
     - name: Grant execute permission for gradlew
       run: chmod +x ./gradlew
       
     - name: Lint & Unit Test
       run: |
-        ./gradlew lintDebug testDebugUnitTest --no-daemon --stacktrace
+        ./gradlew lintDebug testDebugUnitTest --no-daemon --stacktrace --warning-mode all
     - name: Upload lint results
       if: always()
       uses: actions/upload-artifact@v4
@@ -39,14 +39,32 @@ jobs:
     - uses: actions/setup-java@v4
       with: { java-version: '17', distribution: 'temurin' }
     - uses: android-actions/setup-android@v3
+    - name: Accept Android SDK licenses (smoke)
+      shell: bash
+      run: |
+        if command -v sdkmanager >/dev/null; then
+          yes | sdkmanager --licenses || true
+        else
+          YES_CMD="yes"
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          $YES_CMD | "$SDKMANAGER" --licenses || true
+        fi
+    - name: Install Emulator and System Image (smoke)
+      shell: bash
+      run: |
+        if command -v sdkmanager >/dev/null; then
+          sdkmanager --install "platform-tools" "emulator" "system-images;android-34;google_apis;x86_64" "system-images;android-34;google_apis_playstore;x86_64"
+        else
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platform-tools" "emulator" "system-images;android-34;google_apis;x86_64" "system-images;android-34;google_apis_playstore;x86_64"
+        fi
     - uses: gradle/gradle-build-action@v3
-      with: { gradle-version: 8.4 }
+      with: { gradle-version: 8.9 }
 
     - name: Grant execute permission for gradlew
       run: chmod +x ./gradlew
       
     - name: Build debug APK
-      run: ./gradlew assembleDebug --no-daemon
+      run: ./gradlew assembleDebug --no-daemon --stacktrace --warning-mode all
 
     - name: AVD cache
       uses: actions/cache@v4
@@ -67,9 +85,18 @@ jobs:
         profile: Pixel_5
         avd-name: n0tez-avd
         force-avd-creation: true
-        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot-load -no-snapshot-save -memory 2048 -cores 2
         disable-animations: false
         script: echo "AVD ready"
+
+    - name: Precreate smoke artifacts
+      shell: bash
+      run: |
+        mkdir -p "${{ github.workspace }}"
+        echo "=== Precreated (no emulator yet) ===" > "${{ github.workspace }}/logcat.txt"
+        echo "Waiting for emulator run to populate this file" >> "${{ github.workspace }}/logcat.txt"
+        echo "=== Precreated (no emulator yet) ===" > "${{ github.workspace }}/dumpsys_activity.txt"
+        echo "Waiting for emulator run to populate this file" >> "${{ github.workspace }}/dumpsys_activity.txt"
 
     - name: Smoke test on emulator
       uses: reactivecircus/android-emulator-runner@v2
@@ -80,16 +107,21 @@ jobs:
         profile: Pixel_5
         avd-name: n0tez-avd
         force-avd-creation: false
-        emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+        emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -memory 2048 -cores 2 -timezone America/New_York
         disable-animations: true
         script: |
           set +e
           echo "=== Starting smoke test ==="
+          echo "=== Emulator diagnostic info ==="
           adb wait-for-device
           adb devices
+          echo "Device properties:"
+          adb shell getprop ro.build.version.release || echo "Could not get Android version"
+          adb shell getprop ro.product.model || echo "Could not get device model"
           echo "=== Wait for boot complete ==="
-          until [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ]; do echo "waiting for sys.boot_completed"; sleep 2; done
-          until [ "$(adb shell settings get global device_provisioned 2>/dev/null | tr -d '\r')" = "1" ]; do echo "waiting for device_provisioned"; sleep 2; done
+          timeout 300 bash -c 'until [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ]; do echo "waiting for sys.boot_completed (current: $(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r'))"; sleep 3; done' || echo "Boot completion timeout"
+          timeout 60 bash -c 'until [ "$(adb shell settings get global device_provisioned 2>/dev/null | tr -d '\r')" = "1" ]; do echo "waiting for device_provisioned (current: $(adb shell settings get global device_provisioned 2>/dev/null | tr -d '\r'))"; sleep 2; done' || echo "Device provision timeout"
+          timeout 60 bash -c 'until [ "$(adb shell getprop init.svc.bootanim 2>/dev/null | tr -d '\r')" = "stopped" ]; do echo "waiting for boot animation to stop (current: $(adb shell getprop init.svc.bootanim 2>/dev/null | tr -d '\r'))"; sleep 2; done' || echo "Boot animation timeout"
           adb shell input keyevent 82 || true
           echo "=== Installing APK ==="
           adb install -r app/build/outputs/apk/debug/app-debug.apk || echo "Install failed, continuing..."
@@ -200,7 +232,7 @@ jobs:
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v3
       with:
-        gradle-version: 8.4
+        gradle-version: 8.9
         
     - name: Grant execute permission for gradlew
       run: chmod +x ./gradlew
