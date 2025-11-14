@@ -80,7 +80,8 @@ jobs:
           adb wait-for-device
           adb devices
           adb install -r app/build/outputs/apk/debug/app-debug.apk || true
-          adb logcat -c
+          adb shell pm list packages | grep com.n0tez.app || true
+          adb logcat -c || true
           adb shell am start -W -n com.n0tez.app/.MainActivity || true
           sleep 5
           adb shell am start -W -n com.n0tez.app/.NoteEditorActivity || true
@@ -88,8 +89,7 @@ jobs:
           # tap "Create Note" via input coords (x=540 y=600 is center-card on 1080p)
           adb shell input tap 540 600 || true
           sleep 3
-          # capture any crash or ANR
-          adb logcat -d > logcat.txt || true
+          adb logcat -d | tail -n 400 > logcat.txt || true
           if grep -q 'FATAL\|AndroidRuntime\|ANR' logcat.txt; then
             echo "❌ Smoke test FAILED"; exit 1
           else
