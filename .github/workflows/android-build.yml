@@ -19,7 +19,7 @@ jobs:
       with: { gradle-version: 8.4 }
     - name: Lint & Unit Test
       run: |
-        gradle lintDebug testDebugUnitTest --no-daemon --stacktrace
+        ./gradlew lintDebug testDebugUnitTest --no-daemon --stacktrace
     - name: Upload lint results
       if: always()
       uses: actions/upload-artifact@v4
@@ -40,7 +40,7 @@ jobs:
       with: { gradle-version: 8.4 }
 
     - name: Build debug APK
-      run: gradle assembleDebug --no-daemon
+      run: ./gradlew assembleDebug --no-daemon
 
     - name: AVD cache
       uses: actions/cache@v4
@@ -49,14 +49,14 @@ jobs:
         path: |
           ~/.android/avd/*
           ~/.android/adb*
-        key: avd-api33
+        key: avd-api34-google-apis
 
-    - name: Create AVD 33
+    - name: Create AVD 34
       if: steps.avd-cache.outputs.cache-hit != 'true'
       uses: reactivecircus/android-emulator-runner@v2
       with:
-        api-level: 33
-        target: default
+        api-level: 34
+        target: google_apis
         arch: x86_64
         profile: Pixel_5
         avd-name: n0tez-avd
@@ -68,8 +68,8 @@ jobs:
     - name: Smoke test on emulator
       uses: reactivecircus/android-emulator-runner@v2
       with:
-        api-level: 33
-        target: default
+        api-level: 34
+        target: google_apis
         arch: x86_64
         profile: Pixel_5
         avd-name: n0tez-avd
@@ -102,6 +102,7 @@ jobs:
       with:
         name: smoke-logcat
         path: ${{ github.workspace }}/logcat.txt
+        if-no-files-found: warn
 
   # -------- signed release build (only if smoke green) --------
   build:
