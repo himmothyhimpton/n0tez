@@ -81,13 +81,17 @@ jobs:
           echo "=== Starting smoke test ==="
           adb wait-for-device
           adb devices
+          echo "=== Wait for boot complete ==="
+          until [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ]; do echo "waiting for sys.boot_completed"; sleep 2; done
+          until [ "$(adb shell settings get global device_provisioned 2>/dev/null | tr -d '\r')" = "1" ]; do echo "waiting for device_provisioned"; sleep 2; done
+          adb shell input keyevent 82 || true
           echo "=== Installing APK ==="
           adb install -r app/build/outputs/apk/debug/app-debug.apk || echo "Install failed, continuing..."
           adb shell pm list packages | grep com.n0tez.app || echo "Package not found, continuing..."
           echo "=== Clearing logcat ==="
           adb logcat -c || echo "Logcat clear failed, continuing..."
-          echo "=== Starting MainActivity ==="
-          adb shell am start -W -n com.n0tez.app/.MainActivity || echo "MainActivity start failed, continuing..."
+          echo "=== Starting MainActivity via cmd ==="
+          adb shell cmd activity start-activity -W -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -n com.n0tez.app/.MainActivity || echo "MainActivity start failed, continuing..."
           sleep 5
           echo "=== Starting NoteEditorActivity ==="
           adb shell am start -W -n com.n0tez.app/.NoteEditorActivity || echo "NoteEditorActivity start failed, continuing..."
@@ -99,13 +103,9 @@ jobs:
           echo "=== Capturing logcat ==="
           mkdir -p ${{ github.workspace }}
           : > ${{ github.workspace }}/logcat.txt
-          # Try multiple methods to capture logcat
-          adb logcat -d >> ${{ github.workspace }}/logcat.txt 2>/dev/null || echo "Standard logcat failed"
-          # If standard logcat fails, try alternative approach
-          if [ ! -s ${{ github.workspace }}/logcat.txt ]; then
-            echo "Attempting alternative logcat capture..."
-            timeout 5 adb logcat -d -v time >> ${{ github.workspace }}/logcat.txt 2>/dev/null || echo "Alternative logcat also failed"
-          fi
+          adb logcat -b all -v time -d >> ${{ github.workspace }}/logcat.txt 2>/dev/null || echo "logcat capture failed" >> ${{ github.workspace }}/logcat.txt
+          echo "=== Capturing dumpsys activity ==="
+          adb shell dumpsys activity > ${{ github.workspace }}/dumpsys_activity.txt 2>/dev/null || echo "dumpsys activity failed" > ${{ github.workspace }}/dumpsys_activity.txt
           # Ensure file exists and has some content
           if [ ! -s ${{ github.workspace }}/logcat.txt ]; then
             echo "No logcat content captured - creating diagnostic file"
@@ -132,6 +132,15 @@ jobs:
       with:
         name: smoke-logcat
         path: ${{ github.workspace }}/logcat.txt
+        if-no-files-found: warn
+        retention-days: 7
+
+    - name: Upload dumpsys activity
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: dumpsys-activity
+        path: ${{ github.workspace }}/dumpsys_activity.txt
         if-no-files-found: warn
         retention-days: 7
 
