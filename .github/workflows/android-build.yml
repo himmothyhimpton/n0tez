@@ -99,11 +99,27 @@ jobs:
           echo "=== Capturing logcat ==="
           mkdir -p ${{ github.workspace }}
           : > ${{ github.workspace }}/logcat.txt
-          adb logcat -d >> ${{ github.workspace }}/logcat.txt || echo "Logcat capture failed, using empty file"
+          # Try multiple methods to capture logcat
+          adb logcat -d >> ${{ github.workspace }}/logcat.txt 2>/dev/null || echo "Standard logcat failed"
+          # If standard logcat fails, try alternative approach
+          if [ ! -s ${{ github.workspace }}/logcat.txt ]; then
+            echo "Attempting alternative logcat capture..."
+            timeout 5 adb logcat -d -v time >> ${{ github.workspace }}/logcat.txt 2>/dev/null || echo "Alternative logcat also failed"
+          fi
+          # Ensure file exists and has some content
+          if [ ! -s ${{ github.workspace }}/logcat.txt ]; then
+            echo "No logcat content captured - creating diagnostic file"
+            echo "=== Logcat Capture Failed ===" > ${{ github.workspace }}/logcat.txt
+            echo "Timestamp: $(date)" >> ${{ github.workspace }}/logcat.txt
+            echo "Device info:" >> ${{ github.workspace }}/logcat.txt
+            adb shell getprop ro.build.version.release >> ${{ github.workspace }}/logcat.txt 2>/dev/null || echo "Could not get device info" >> ${{ github.workspace }}/logcat.txt
+          fi
           echo "=== Analyzing logcat ==="
-          tail -n 400 ${{ github.workspace }}/logcat.txt || echo "No logcat content"
+          echo "Logcat file size: $(wc -c < ${{ github.workspace }}/logcat.txt) bytes"
+          tail -n 400 ${{ github.workspace }}/logcat.txt || echo "No logcat content to display"
           if grep -q 'FATAL\|AndroidRuntime\|ANR' ${{ github.workspace }}/logcat.txt; then
             echo "❌ Smoke test FAILED - Found crash in logcat"
+            echo "=== Full logcat content ==="
             cat ${{ github.workspace }}/logcat.txt
             exit 1
           else
@@ -117,6 +133,7 @@ jobs:
         name: smoke-logcat
         path: ${{ github.workspace }}/logcat.txt
         if-no-files-found: warn
+        retention-days: 7
 
   # -------- signed release build (only if smoke green) --------
   build:
