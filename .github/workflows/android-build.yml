@@ -17,6 +17,9 @@ jobs:
     - uses: android-actions/setup-android@v3
     - uses: gradle/gradle-build-action@v3
       with: { gradle-version: 8.4 }
+    - name: Grant execute permission for gradlew
+      run: chmod +x ./gradlew
+      
     - name: Lint & Unit Test
       run: |
         ./gradlew lintDebug testDebugUnitTest --no-daemon --stacktrace
@@ -39,6 +42,9 @@ jobs:
     - uses: gradle/gradle-build-action@v3
       with: { gradle-version: 8.4 }
 
+    - name: Grant execute permission for gradlew
+      run: chmod +x ./gradlew
+      
     - name: Build debug APK
       run: ./gradlew assembleDebug --no-daemon
 
@@ -196,17 +202,12 @@ jobs:
       with:
         gradle-version: 8.4
         
-    - name: Install Gradle 8.4
-      shell: bash
-      run: |
-        curl -L https://services.gradle.org/distributions/gradle-8.4-bin.zip -o gradle-8.4-bin.zip
-        unzip -q gradle-8.4-bin.zip -d $HOME/gradle
-        echo "GRADLE_HOME=$HOME/gradle/gradle-8.4" >> $GITHUB_ENV
-        echo "PATH=$HOME/gradle/gradle-8.4/bin:$PATH" >> $GITHUB_ENV
-
+    - name: Grant execute permission for gradlew
+      run: chmod +x ./gradlew
+        
     - name: Build Debug APK
       shell: bash
-      run: gradle assembleDebug --no-daemon --stacktrace --info --warning-mode all --no-parallel --max-workers=1 | tee build-debug.log
+      run: ./gradlew assembleDebug --no-daemon --stacktrace --info --warning-mode all --no-parallel --max-workers=1 | tee build-debug.log
       
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
@@ -216,7 +217,7 @@ jobs:
         
     - name: Build Release APK
       shell: bash
-      run: gradle assembleRelease --no-daemon --stacktrace --info --warning-mode all --no-parallel --max-workers=1 | tee build-release.log
+      run: ./gradlew assembleRelease --no-daemon --stacktrace --info --warning-mode all --no-parallel --max-workers=1 | tee build-release.log
 
     - name: Zipalign Release APK
       shell: bash
