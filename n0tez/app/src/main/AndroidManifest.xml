@@ -5,18 +5,14 @@
     <!-- Permissions for floating widget and overlay -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     
-    <!-- Permissions for storage and backup -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    
-    <!-- Permissions for Firebase -->
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- Permissions for storage -->
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
+        android:name=".N0tezApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -26,8 +22,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.N0tez"
         android:hardwareAccelerated="true"
-        android:largeHeap="true"
-        tools:targetApi="33">
+        tools:targetApi="34">
         
         <!-- Main Activity -->
         <activity
@@ -41,12 +36,31 @@
             </intent-filter>
         </activity>
         
+        <!-- Notes List Activity -->
+        <activity
+            android:name=".NotesListActivity"
+            android:exported="false"
+            android:theme="@style/Theme.N0tez"
+            android:parentActivityName=".MainActivity" />
+        
+        <!-- Note Editor Activity -->
+        <activity
+            android:name=".NoteEditorActivity"
+            android:exported="false"
+            android:theme="@style/Theme.N0tez"
+            android:parentActivityName=".MainActivity"
+            android:windowSoftInputMode="adjustResize" />
+        
         <!-- Floating Widget Service -->
         <service
             android:name=".FloatingWidgetService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="mediaProjection" />
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="floating_overlay_widget" />
+        </service>
         
         <!-- Settings Activity -->
         <activity
@@ -61,23 +75,6 @@
             android:exported="false"
             android:theme="@style/Theme.N0tez"
             android:windowSoftInputMode="adjustResize" />
-        
-        <!-- Firebase Services -->
-        <service
-            android:name="com.google.firebase.components.ComponentDiscoveryService"
-            android:exported="false"
-            android:directBootAware="true">
-            <meta-data
-                android:name="com.google.firebase.components:io.grpc.okhttp.OkHttpChannelProvider"
-                android:value="com.google.firebase.components.ComponentRegistrar" />
-        </service>
-        
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/ic_notification" />
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/purple_500" />
             
     </application>
 

@@ -1,7 +1,6 @@
 package com.n0tez.app
 
 import android.Manifest
-import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -10,6 +9,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -18,8 +18,28 @@ import com.n0tez.app.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity() {
     
     private lateinit var binding: ActivityMainBinding
-    private val OVERLAY_PERMISSION_REQUEST_CODE = 100
-    private val STORAGE_PERMISSION_REQUEST_CODE = 101
+    private var pendingWidgetStart = false
+    
+    private val overlayPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        if (hasOverlayPermission()) {
+            if (pendingWidgetStart) {
+                pendingWidgetStart = false
+                startFloatingWidget()
+            }
+        } else {
+            Toast.makeText(this, "Overlay permission is required for the floating widget", Toast.LENGTH_LONG).show()
+        }
+    }
+    
+    private val notificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (!isGranted) {
+            Toast.makeText(this, "Notification permission helps keep the widget running", Toast.LENGTH_SHORT).show()
+        }
+    }
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,47 +47,45 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         
         setupUI()
-        checkPermissions()
+        checkNotificationPermission()
     }
     
     private fun setupUI() {
-        binding.apply {
-            // Setup main activity UI
-            btnCreateNote.setOnClickListener {
-                startActivity(Intent(this@MainActivity, NoteEditorActivity::class.java))
-            }
-            
-            btnFloatingWidget.setOnClickListener {
-                if (hasOverlayPermission()) {
-                    startFloatingWidget()
-                } else {
-                    requestOverlayPermission()
-                }
-            }
-            
-            btnSettings.setOnClickListener {
-                startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
-            }
+        // Card click handlers
+        binding.cardCreateNote.setOnClickListener {
+            startActivity(Intent(this, NoteEditorActivity::class.java))
+        }
+        
+        binding.cardFloatingWidget.setOnClickListener {
+            handleFloatingWidgetClick()
+        }
+        
+        binding.cardSettings.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
+        
+        binding.cardMyNotes.setOnClickListener {
+            startActivity(Intent(this, NotesListActivity::class.java))
         }
     }
     
-    private fun checkPermissions() {
-        // Check overlay permission
-        if (!hasOverlayPermission()) {
-            requestOverlayPermission()
+    private fun handleFloatingWidgetClick() {
+        if (hasOverlayPermission()) {
+            startFloatingWidget()
+        } else {
+            showOverlayPermissionDialog()
         }
-        
-        // Check storage permission for Android 13+
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) 
-                != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                    STORAGE_PERMISSION_REQUEST_CODE
-                )
+    }
+    
+    private fun showOverlayPermissionDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Permission Required")
+            .setMessage("n0tez needs permission to draw over other apps so the floating notepad can appear on top of your screen. This is essential for the transparent overlay feature.")
+            .setPositiveButton("Grant Permission") { _, _ ->
+                requestOverlayPermission()
             }
-        }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
     
     private fun hasOverlayPermission(): Boolean {
@@ -80,11 +98,12 @@ class MainActivity : AppCompatActivity() {
     
     private fun requestOverlayPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            pendingWidgetStart = true
             val intent = Intent(
                 Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                 Uri.parse("package:$packageName")
             )
-            startActivityForResult(intent, OVERLAY_PERMISSION_REQUEST_CODE)
+            overlayPermissionLauncher.launch(intent)
         }
     }
     
@@ -95,35 +114,17 @@ class MainActivity : AppCompatActivity() {
         } else {
             startService(intent)
         }
-        Toast.makeText(this, "Floating widget started", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Floating widget started! Look for the bubble icon.", Toast.LENGTH_SHORT).show()
+        
+        // Minimize app so user can see the widget
+        moveTaskToBack(true)
     }
     
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            OVERLAY_PERMISSION_REQUEST_CODE -> {
-                if (hasOverlayPermission()) {
-                    startFloatingWidget()
-                } else {
-                    Toast.makeText(this, "Overlay permission denied", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
-    
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            STORAGE_PERMISSION_REQUEST_CODE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission granted
-                } else {
-                    Toast.makeText(this, "Storage permission denied", Toast.LENGTH_SHORT).show()
-                }
+    private fun checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) 
+                != PackageManager.PERMISSION_GRANTED) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
     }
