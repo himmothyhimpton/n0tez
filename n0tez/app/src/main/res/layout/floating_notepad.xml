@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/notepad_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Solid border frame -->
+    <LinearLayout
+        android:id="@+id/notepad_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@drawable/notepad_border_background">
+
+        <!-- Header bar (solid, draggable) -->
+        <LinearLayout
+            android:id="@+id/header_bar"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="8dp"
+            android:background="@drawable/notepad_header_background">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="n0tez"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:paddingStart="8dp" />
+
+            <ImageButton
+                android:id="@+id/btn_new_note"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_add"
+                android:contentDescription="New note"
+                android:padding="6dp"
+                app:tint="#FFFFFF" />
+
+            <ImageButton
+                android:id="@+id/btn_pin_note"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_pin"
+                android:contentDescription="Pin note"
+                android:padding="6dp"
+                app:tint="#FFFFFF" />
+
+            <ImageButton
+                android:id="@+id/btn_save_note"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_save"
+                android:contentDescription="Save note"
+                android:padding="6dp"
+                app:tint="#FFFFFF" />
+
+            <ImageButton
+                android:id="@+id/btn_close_notepad"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_close"
+                android:contentDescription="Close notepad"
+                android:padding="6dp"
+                app:tint="#FFFFFF" />
+
+        </LinearLayout>
+
+        <!-- Transparency control -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:background="#CC333333">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_opacity"
+                app:tint="#FFFFFF" />
+
+            <SeekBar
+                android:id="@+id/transparency_seekbar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="8dp"
+                android:max="100"
+                android:progress="20"
+                android:progressTint="#BB86FC"
+                android:thumbTint="#BB86FC" />
+
+            <TextView
+                android:id="@+id/transparency_label"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:text="80%"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:textAlignment="center" />
+
+        </LinearLayout>
+
+        <!-- Edit area with transparent background -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_margin="4dp">
+
+            <!-- This is the transparent backdrop -->
+            <View
+                android:id="@+id/edit_text_background"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#000000"
+                android:alpha="0.2" />
+
+            <!-- The actual edit text with bright, bold text -->
+            <EditText
+                android:id="@+id/notepad_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:gravity="top|start"
+                android:hint="Start typing..."
+                android:padding="12dp"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#AAAAAA"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:shadowColor="#000000"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="2"
+                android:inputType="textMultiLine|textCapSentences"
+                android:imeOptions="actionNone"
+                android:scrollbars="vertical" />
+
+        </FrameLayout>
+
+        <!-- Bottom action bar (solid) -->
+        <LinearLayout
+            android:id="@+id/bottom_bar"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:background="@drawable/notepad_header_background"
+            android:paddingHorizontal="16dp">
+
+            <ImageButton
+                android:id="@+id/btn_delete_note"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginEnd="16dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_delete"
+                android:contentDescription="Delete note"
+                android:padding="10dp"
+                app:tint="#FF6B6B" />
+
+            <ImageButton
+                android:id="@+id/btn_shred_note"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_shred"
+                android:contentDescription="Shred note securely"
+                android:padding="10dp"
+                app:tint="#FF4444" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Border overlay -->
+    <View
+        android:id="@+id/notepad_border"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/notepad_border_overlay" />
+
+</FrameLayout>
