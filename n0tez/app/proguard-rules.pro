@@ -1,58 +1,40 @@
 # Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# You can control the set of applied configuration files using the
+# proguardFiles setting in build.gradle.
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Keep the application class
+-keep class com.n0tez.app.N0tezApplication { *; }
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Keep all activities
+-keep class com.n0tez.app.** { *; }
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Keep data classes
+-keep class com.n0tez.app.data.** { *; }
 
-# Keep Firebase classes
--keep class com.google.firebase.** { *; }
--dontwarn com.google.firebase.**
-
-# Keep Security library classes
+# Keep Android Security classes
 -keep class androidx.security.crypto.** { *; }
--dontwarn androidx.security.crypto.**
 
-# Keep Material Design classes
--keep class com.google.android.material.** { *; }
--dontwarn com.google.android.material.**
-
-# Keep Room database classes
--keep class androidx.room.** { *; }
--dontwarn androidx.room.**
-
-# Keep Kotlin metadata
--keepattributes *Annotation*
--keepattributes RuntimeVisibleAnnotations
--keepattributes RuntimeInvisibleAnnotations
--keepattributes RuntimeVisibleParameterAnnotations
--keepattributes RuntimeInvisibleParameterAnnotations
-
--keepattributes InnerClasses
--keepattributes EnclosingMethod
-
-# Keep Kotlin classes
--keep class **.model.** { *; }
--keep class **.entity.** { *; }
--keep class **.database.** { *; }
-
-# Keep coroutines
+# Keep Kotlin coroutines
 -keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
 -keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
--keepclassmembernames class kotlinx.** {
-    volatile <fields>;
+
+# Keep Preference classes
+-keep class androidx.preference.** { *; }
+
+# General Android rules
+-keepclassmembers class * implements android.os.Parcelable {
+    public static final ** CREATOR;
 }
+
+-keepclassmembers class * implements java.io.Serializable {
+    static final long serialVersionUID;
+    private static final java.io.ObjectStreamField[] serialPersistentFields;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
+}
+
+# Don't warn about missing classes from optional dependencies
+-dontwarn javax.annotation.**
+-dontwarn org.conscrypt.**
