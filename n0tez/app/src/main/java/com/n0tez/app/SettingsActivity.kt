@@ -6,6 +6,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
+import com.google.android.material.appbar.MaterialToolbar
 
 class SettingsActivity : AppCompatActivity() {
     
@@ -13,13 +16,22 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings_activity)
         
+        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = "Settings"
+        
         if (savedInstanceState == null) {
             supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.settings, SettingsFragment())
                 .commit()
         }
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+    
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressedDispatcher.onBackPressed()
+        return true
     }
     
     class SettingsFragment : PreferenceFragmentCompat() {
@@ -41,25 +53,17 @@ class SettingsActivity : AppCompatActivity() {
                 true
             }
             
-            // Setup theme preference
-            val themePreference = findPreference<Preference>("theme")
-            themePreference?.setOnPreferenceChangeListener { _, _ ->
-                // Recreate activity to apply theme
-                requireActivity().recreate()
-                true
-            }
-            
-            // Setup backup preference
-            val backupPreference = findPreference<Preference>("backup_restore")
-            backupPreference?.setOnPreferenceClickListener {
-                // Start backup/restore activity
-                true
-            }
-            
             // Setup about preference
             val aboutPreference = findPreference<Preference>("about")
             aboutPreference?.setOnPreferenceClickListener {
                 showAboutDialog()
+                true
+            }
+            
+            // Setup privacy preference
+            val privacyPreference = findPreference<Preference>("privacy_info")
+            privacyPreference?.setOnPreferenceClickListener {
+                showPrivacyInfo()
                 true
             }
         }
@@ -88,12 +92,24 @@ class SettingsActivity : AppCompatActivity() {
         }
         
         private fun showAboutDialog() {
-            val versionName = requireContext().packageManager
-                .getPackageInfo(requireContext().packageName, 0).versionName
+            val versionName = try {
+                requireContext().packageManager
+                    .getPackageInfo(requireContext().packageName, 0).versionName
+            } catch (e: Exception) {
+                "1.0.0"
+            }
             
             androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("About n0tez")
-                .setMessage("Version: $versionName\n\nA transparent notepad application that allows you to create and manage notes with a floating widget interface.")
+                .setMessage("Version: $versionName\n\nn0tez is a transparent notepad application that allows you to create and manage notes with a floating widget interface.\n\nFeatures:\n• Transparent floating notepad\n• See-through background\n• Pinned notes\n• Secure note shredding\n• PIN protection")
+                .setPositiveButton("OK", null)
+                .show()
+        }
+        
+        private fun showPrivacyInfo() {
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Privacy Information")
+                .setMessage("n0tez takes your privacy seriously:\n\n• All notes are stored locally on your device\n• No data is sent to external servers\n• PIN codes are encrypted using Android Security\n• The Shred feature securely overwrites notes before deletion\n\nNo account required. Your notes stay on your device.")
                 .setPositiveButton("OK", null)
                 .show()
         }

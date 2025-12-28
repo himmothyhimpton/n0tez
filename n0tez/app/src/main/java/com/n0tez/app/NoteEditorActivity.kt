@@ -1,17 +1,19 @@
 package com.n0tez.app
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
+import com.n0tez.app.data.Note
+import com.n0tez.app.data.NoteRepository
 import com.n0tez.app.databinding.ActivityNoteEditorBinding
 import kotlinx.coroutines.*
-import java.text.SimpleDateFormat
-import java.util.*
 
 class NoteEditorActivity : AppCompatActivity() {
     
     private lateinit var binding: ActivityNoteEditorBinding
-    private var noteId: String? = null
+    private lateinit var noteRepository: NoteRepository
+    private var currentNote: Note? = null
     private var autoSaveJob: Job? = null
     private val autoSaveScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     
@@ -19,6 +21,8 @@ class NoteEditorActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityNoteEditorBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        
+        noteRepository = NoteRepository(this)
         
         setupUI()
         loadNoteIfExists()
@@ -35,12 +39,8 @@ class NoteEditorActivity : AppCompatActivity() {
             sliderTransparency.addOnChangeListener { _, value, _ ->
                 val alpha = value / 100f
                 noteContainer.alpha = alpha
-                saveTransparencyPreference(value)
+                saveTransparencyPreference(value.toInt())
             }
-            
-            // Setup text editor
-            noteEditText.setBackgroundColor(android.graphics.Color.TRANSPARENT)
-            noteEditText.setTextColor(android.graphics.Color.WHITE)
             
             // Setup save button
             btnSave.setOnClickListener {
@@ -65,26 +65,26 @@ class NoteEditorActivity : AppCompatActivity() {
     }
     
     private fun loadNoteIfExists() {
-        noteId = intent.getStringExtra("NOTE_ID")
-        noteId?.let { id ->
-            loadNote(id)
+        val noteId = intent.getStringExtra("NOTE_ID")
+        
+        if (noteId != null) {
+            // Load existing note
+            val notes = noteRepository.getAllNotes()
+            currentNote = notes.find { it.id == noteId }
+            currentNote?.let { note ->
+                binding.noteEditText.setText(note.content)
+                supportActionBar?.title = "Edit Note"
+            }
+        } else {
+            // Create new note
+            currentNote = Note()
         }
         
         // Load saved transparency level
         val savedTransparency = getSharedPreferences("n0tez_prefs", MODE_PRIVATE)
-            .getInt("transparency_level", 70)
+            .getInt("editor_transparency", 100)
         binding.sliderTransparency.value = savedTransparency.toFloat()
         binding.noteContainer.alpha = savedTransparency / 100f
-    }
-    
-    private fun loadNote(noteId: String) {
-        // Load note from database
-        // This is a simplified implementation
-        val noteContent = getSharedPreferences("n0tez_prefs", MODE_PRIVATE)
-            .getString("note_$noteId", "")
-        
-        binding.noteEditText.setText(noteContent)
-        supportActionBar?.title = "Edit Note"
     }
     
     private fun setupAutoSave() {
@@ -104,8 +104,8 @@ class NoteEditorActivity : AppCompatActivity() {
             return
         }
         
-        val noteIdToSave = noteId ?: generateNoteId()
-        saveNoteToStorage(noteIdToSave, content)
+        currentNote?.content = content
+        currentNote?.let { noteRepository.saveNote(it) }
         
         showMessage("Note saved successfully")
         finish()
@@ -114,20 +114,8 @@ class NoteEditorActivity : AppCompatActivity() {
     private fun saveNoteSilently() {
         val content = binding.noteEditText.text.toString()
         if (content.isNotBlank()) {
-            val noteIdToSave = noteId ?: generateNoteId()
-            saveNoteToStorage(noteIdToSave, content)
-            noteId = noteIdToSave
-        }
-    }
-    
-    private fun saveNoteToStorage(noteId: String, content: String) {
-        val sharedPrefs = getSharedPreferences("n0tez_prefs", MODE_PRIVATE)
-        val timestamp = System.currentTimeMillis()
-        
-        sharedPrefs.edit().apply {
-            putString("note_$noteId", content)
-            putLong("note_${noteId}_timestamp", timestamp)
-            apply()
+            currentNote?.content = content
+            currentNote?.let { noteRepository.saveNote(it) }
         }
     }
     
@@ -173,18 +161,16 @@ class NoteEditorActivity : AppCompatActivity() {
             }
             
             binding.noteEditText.setText(newText)
-            binding.noteEditText.setSelection(cursorPosition + pastedText.length)
+            binding.noteEditText.setSelection(
+                minOf(cursorPosition + pastedText.length, newText.length)
+            )
         }
     }
     
     private fun saveTransparencyPreference(level: Int) {
         getSharedPreferences("n0tez_prefs", MODE_PRIVATE).edit()
-            .putInt("transparency_level", level)
+            .putInt("editor_transparency", level)
             .apply()
-    }
-    
-    private fun generateNoteId(): String {
-        return SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
     }
     
     private fun showMessage(message: String) {
@@ -192,8 +178,14 @@ class NoteEditorActivity : AppCompatActivity() {
     }
     
     override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
+        saveNoteSilently()
+        onBackPressedDispatcher.onBackPressed()
         return true
+    }
+    
+    override fun onPause() {
+        super.onPause()
+        saveNoteSilently()
     }
     
     override fun onDestroy() {
