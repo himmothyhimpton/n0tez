@@ -1,150 +1,134 @@
-# n0tez Android App Build Instructions
+# Building n0tez for Google Play Store
 
 ## Prerequisites
 
-1. **Android Studio** (Recommended) or Android SDK
-2. **Java JDK 17** or higher
-3. **Android SDK** with API level 33+
+1. **Android Studio** (latest version recommended)
+2. **JDK 17** or higher
+3. **Android SDK** with API 34 installed
 
-## Build Methods
+## Building Debug APK
 
-### Method 1: Using Android Studio (Recommended)
+### Using Android Studio:
+1. Open the `n0tez` folder in Android Studio
+2. Wait for Gradle sync to complete
+3. Select **Build > Build Bundle(s) / APK(s) > Build APK(s)**
+4. APK will be at: `app/build/outputs/apk/debug/app-debug.apk`
 
-1. **Open Android Studio**
-2. **Open the project** by selecting the `n0tez` folder
-3. **Wait for Gradle sync** to complete
-4. **Build APK**:
-   - Go to `Build` → `Build Bundle(s) / APK(s)` → `Build APK(s)`
-   - The APK will be generated in `app/build/outputs/apk/debug/`
-
-### Method 2: Command Line Build (Advanced)
-
-If you have Android SDK installed:
-
+### Using Command Line:
 ```bash
-# Set Android SDK path
-export ANDROID_HOME=/path/to/android-sdk
+cd n0tez
 
-# Make gradlew executable (Linux/Mac)
+# Make gradlew executable (Mac/Linux)
 chmod +x gradlew
 
 # Build debug APK
 ./gradlew assembleDebug
 
-# Build release APK
+# Windows
+gradlew.bat assembleDebug
+```
+
+## Building Release APK (For Play Store)
+
+### Step 1: Create Signing Key
+```bash
+keytool -genkey -v -keystore n0tez-release-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias n0tez
+```
+Save this key file safely - you'll need it for all future updates!
+
+### Step 2: Configure Signing in build.gradle
+
+Add to `app/build.gradle` inside `android { }` block:
+
+```groovy
+signingConfigs {
+    release {
+        storeFile file("path/to/n0tez-release-key.jks")
+        storePassword "your-store-password"
+        keyAlias "n0tez"
+        keyPassword "your-key-password"
+    }
+}
+
+buildTypes {
+    release {
+        signingConfig signingConfigs.release
+        minifyEnabled true
+        shrinkResources true
+        proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+    }
+}
+```
+
+### Step 3: Build Release APK
+```bash
 ./gradlew assembleRelease
 ```
 
-### Method 3: Using Gradle Wrapper (Windows)
+APK will be at: `app/build/outputs/apk/release/app-release.apk`
 
-```cmd
-# Build debug APK
-gradlew.bat assembleDebug
-
-# Build release APK  
-gradlew.bat assembleRelease
+### Alternative: Build AAB (Recommended for Play Store)
+```bash
+./gradlew bundleRelease
 ```
 
-## Build Output
+AAB will be at: `app/build/outputs/bundle/release/app-release.aab`
 
-After successful build, the APK will be located at:
-- **Debug APK**: `app/build/outputs/apk/debug/app-debug.apk`
-- **Release APK**: `app/build/outputs/apk/release/app-release.apk`
+## Google Play Store Checklist
 
-## Installation
+### Required Assets
+- [ ] **App Icon**: 512x512 PNG (you can export from Android Studio)
+- [ ] **Feature Graphic**: 1024x500 PNG
+- [ ] **Screenshots**: Min 2, up to 8 (phone: 1080x1920 or similar)
+- [ ] **Short Description**: 80 characters max
+- [ ] **Full Description**: 4000 characters max
+- [ ] **Privacy Policy URL**: Required for overlay permission
 
-### Install on Device/Emulator
+### Content Rating
+Complete the content rating questionnaire in Play Console.
+This app should qualify for "Everyone" rating.
 
-1. **Enable Developer Options** on your Android device
-2. **Enable USB Debugging**
-3. **Connect device** via USB
-4. **Install APK**:
-   ```bash
-   adb install app/build/outputs/apk/debug/app-debug.apk
-   ```
+### App Signing
+Google Play will manage your app signing for new apps.
+Upload your signing key or let Google generate one.
 
-### Install via Android Studio
+### Testing
+1. Upload to Internal Testing track first
+2. Test on multiple devices
+3. Verify overlay permission flow works
+4. Test all features
+5. Promote to Production when ready
 
-1. **Connect device** or start emulator
-2. **Click Run button** in Android Studio
-3. **Select device** from the deployment dialog
+## Generating App Icon
 
-## Build Configuration
+To generate app icon in various sizes:
 
-### Debug Build
-- Includes debugging symbols
-- Enables logging
-- Uses debug signing key
-- Firebase Crashlytics enabled
+1. In Android Studio, right-click `res` folder
+2. Select **New > Image Asset**
+3. Choose **Launcher Icons (Adaptive and Legacy)**
+4. Use the vector drawable or create a custom image
+5. Click Next and Finish
 
-### Release Build
-- Optimized with ProGuard
-- Minified code
-- Requires signing configuration
-- Firebase Crashlytics enabled
+## Testing the APK
+
+```bash
+# Install on connected device
+adb install app/build/outputs/apk/debug/app-debug.apk
+
+# Install release version
+adb install app/build/outputs/apk/release/app-release.apk
+```
 
 ## Troubleshooting
 
-### Common Issues:
+**Build fails with Java version error:**
+- Ensure JDK 17 is installed
+- Set `JAVA_HOME` environment variable
 
-1. **Gradle Sync Failed**:
-   - Check internet connection
-   - Update Android Studio
-   - Clear Gradle cache: `File` → `Invalidate Caches and Restart`
+**Overlay permission not working:**
+- Ensure `SYSTEM_ALERT_WINDOW` is in manifest
+- Test on Android 8.0+ device
 
-2. **Build Failed - Missing Dependencies**:
-   - Ensure all dependencies are properly declared in `build.gradle`
-   - Check that repositories are accessible
-
-3. **Permission Issues**:
-   - Grant necessary permissions on device
-   - Check AndroidManifest.xml permissions
-
-4. **Firebase Configuration**:
-   - Update `google-services.json` with your Firebase project
-   - Enable Firebase services in Firebase Console
-
-### Required Permissions:
-- `SYSTEM_ALERT_WINDOW` - For floating widget
-- `FOREGROUND_SERVICE` - For background service
-- `WRITE_EXTERNAL_STORAGE` - For note storage
-- `INTERNET` - For Firebase services
-
-## Testing
-
-### Manual Testing Checklist:
-- [ ] App launches successfully
-- [ ] Floating widget appears and functions
-- [ ] Transparency controls work
-- [ ] Notes can be created, edited, saved
-- [ ] PIN security works (if enabled)
-- [ ] Copy/paste functionality
-- [ ] Settings screen functions
-- [ ] Dark/light theme switching
-- [ ] Widget positioning and sizing
-- [ ] Auto-save functionality
-
-### Device Compatibility:
-- Test on Android 13+ devices
-- Test different screen sizes
-- Test various screen densities
-- Test on tablets and phones
-
-## Google Play Store Preparation
-
-### Before Publishing:
-1. **Update app version** in `app/build.gradle`
-2. **Create release build** with proper signing
-3. **Generate app bundle** (AAB format recommended)
-4. **Prepare store listing** with descriptions and screenshots
-5. **Test on multiple devices**
-6. **Ensure policy compliance**
-
-### Required Assets:
-- App icon (1024x1024 PNG)
-- Feature graphic (1024x500 PNG)
-- Screenshots (minimum 2, recommended 8)
-- App description and feature list
-- Privacy policy URL
-
-The app is now ready for building and testing!
+**APK too large:**
+- Enable ProGuard (already configured)
+- Remove unused resources
