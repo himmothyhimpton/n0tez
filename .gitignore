@@ -89,3 +89,8 @@ android-sdk/ -e
 # Environment files
 *.env
 *.env.*
+
+# Local temp artifacts
+.tmp/
+.tmp_wrapper/
+n0tez/.gradle/
