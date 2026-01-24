@@ -30,10 +30,11 @@ jobs:
     - name: Build Debug APK
       run: |
         cd n0tez
-        ./gradlew assembleDebug --no-daemon
+        ./gradlew assembleDebug --no-daemon --stacktrace
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
+      if: success()
       with:
         name: app-debug
         path: n0tez/app/build/outputs/apk/debug/app-debug.apk
