@@ -1,8 +1,7 @@
--e 
 # Environment files
 *.env
 *.env.*
--e 
-# Environment files
-*.env
-*.env.*
+
+# Local temp artifacts
+.tmp/
+n0tez/.gradle/
