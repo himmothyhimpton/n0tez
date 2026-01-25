@@ -17,7 +17,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:title="n0tez"
+        app:title="Building-Block"
         app:titleTextColor="@android:color/white" />
 
     <ScrollView
@@ -67,7 +67,7 @@
                 android:focusable="true"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="8dp"
-                app:strokeColor="#BB86FC"
+                app:strokeColor="#5D9CBA"
                 app:strokeWidth="2dp">
 
                 <LinearLayout
