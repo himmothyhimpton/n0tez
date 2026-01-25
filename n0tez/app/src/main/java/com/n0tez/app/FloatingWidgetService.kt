@@ -171,157 +171,177 @@ class FloatingWidgetService : Service() {
     private fun openNotepad() {
         if (floatingNotepadView != null) return
         
-        val inflater = LayoutInflater.from(this)
-        floatingNotepadView = inflater.inflate(R.layout.floating_notepad, null)
-        
-        val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-        } else {
-            @Suppress("DEPRECATION")
-            WindowManager.LayoutParams.TYPE_PHONE
+        try {
+            val inflater = LayoutInflater.from(this)
+            floatingNotepadView = inflater.inflate(R.layout.floating_notepad, null)
+            
+            val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+            } else {
+                @Suppress("DEPRECATION")
+                WindowManager.LayoutParams.TYPE_PHONE
+            }
+            
+            notepadParams = WindowManager.LayoutParams(
+                dpToPx(320),
+                dpToPx(400),
+                layoutType,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                        WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
+                PixelFormat.TRANSLUCENT
+            ).apply {
+                gravity = Gravity.TOP or Gravity.START
+                x = (bubbleParams?.x ?: 50) + dpToPx(60)
+                y = bubbleParams?.y ?: 200
+                softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+            }
+            
+            windowManager.addView(floatingNotepadView, notepadParams)
+            setupNotepadUI()
+            isNotepadExpanded = true
+            
+            // Update bubble appearance
+            floatingBubbleView?.findViewById<View>(R.id.bubble_icon)?.alpha = 0.5f
+        } catch (e: Exception) {
+            e.printStackTrace()
+            android.widget.Toast.makeText(this, "Failed to open notepad: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
+            // Clean up on failure
+            floatingNotepadView?.let {
+                try {
+                    windowManager.removeView(it)
+                } catch (ex: Exception) { }
+            }
+            floatingNotepadView = null
+            isNotepadExpanded = false
         }
-        
-        notepadParams = WindowManager.LayoutParams(
-            dpToPx(320),
-            dpToPx(400),
-            layoutType,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                    WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
-            PixelFormat.TRANSLUCENT
-        ).apply {
-            gravity = Gravity.TOP or Gravity.START
-            x = (bubbleParams?.x ?: 50) + dpToPx(60)
-            y = bubbleParams?.y ?: 200
-            softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
-        }
-        
-        setupNotepadUI()
-        windowManager.addView(floatingNotepadView, notepadParams)
-        isNotepadExpanded = true
-        
-        // Update bubble appearance
-        floatingBubbleView?.findViewById<View>(R.id.bubble_icon)?.alpha = 0.5f
     }
     
     private fun setupNotepadUI() {
         floatingNotepadView?.apply {
-            val notepadContainer = findViewById<View>(R.id.notepad_container)
-            val notepadBorder = findViewById<View>(R.id.notepad_border)
-            val editText = findViewById<EditText>(R.id.notepad_edit_text)
-            val transparencySeekBar = findViewById<SeekBar>(R.id.transparency_seekbar)
-            val btnClose = findViewById<ImageButton>(R.id.btn_close_notepad)
-            val btnSave = findViewById<ImageButton>(R.id.btn_save_note)
-            val btnPin = findViewById<ImageButton>(R.id.btn_pin_note)
-            val btnNew = findViewById<ImageButton>(R.id.btn_new_note)
-            val btnDelete = findViewById<ImageButton>(R.id.btn_delete_note)
-            val btnShred = findViewById<ImageButton>(R.id.btn_shred_note)
-            val headerBar = findViewById<View>(R.id.header_bar)
-            val transparencyLabel = findViewById<TextView>(R.id.transparency_label)
-            
-            // Set initial transparency (only backdrop is transparent)
-            updateTransparency(transparencyLevel)
-            transparencySeekBar.progress = transparencyLevel
-            transparencyLabel.text = "${100 - transparencyLevel}%"
-            
-            // Load current note or create new
-            currentNote = noteRepository.getCurrentNote() ?: Note()
-            editText.setText(currentNote?.content ?: "")
-            updatePinButton(btnPin)
-            
-            // Setup transparency slider
-            transparencySeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    transparencyLevel = progress
-                    updateTransparency(progress)
-                    transparencyLabel.text = "${100 - progress}%"
+            try {
+                val editText = findViewById<EditText>(R.id.notepad_edit_text) ?: return
+                val transparencySeekBar = findViewById<SeekBar>(R.id.transparency_seekbar) ?: return
+                val btnClose = findViewById<ImageButton>(R.id.btn_close_notepad) ?: return
+                val btnSave = findViewById<ImageButton>(R.id.btn_save_note) ?: return
+                val btnPin = findViewById<ImageButton>(R.id.btn_pin_note) ?: return
+                val btnNew = findViewById<ImageButton>(R.id.btn_new_note) ?: return
+                val btnDelete = findViewById<ImageButton>(R.id.btn_delete_note) ?: return
+                val btnShred = findViewById<ImageButton>(R.id.btn_shred_note) ?: return
+                val headerBar = findViewById<View>(R.id.header_bar) ?: return
+                val transparencyLabel = findViewById<TextView>(R.id.transparency_label) ?: return
+                
+                // Set initial transparency (only backdrop is transparent)
+                updateTransparency(transparencyLevel)
+                transparencySeekBar.progress = transparencyLevel
+                transparencyLabel.text = "${100 - transparencyLevel}%"
+                
+                // Load current note or create new
+                try {
+                    currentNote = noteRepository.getCurrentNote() ?: Note()
+                } catch (e: Exception) {
+                    currentNote = Note()
                 }
-                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-                override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                    // Save preference
-                    getSharedPreferences("n0tez_prefs", MODE_PRIVATE)
-                        .edit()
-                        .putInt("widget_transparency", transparencyLevel)
-                        .apply()
+                editText.setText(currentNote?.content ?: "")
+                updatePinButton(btnPin)
+                
+                // Setup transparency slider
+                transparencySeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                        transparencyLevel = progress
+                        updateTransparency(progress)
+                        transparencyLabel.text = "${100 - progress}%"
+                    }
+                    override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                    override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                        // Save preference
+                        getSharedPreferences("building_block_prefs", MODE_PRIVATE)
+                            .edit()
+                            .putInt("widget_transparency", transparencyLevel)
+                            .apply()
+                    }
+                })
+                
+                // Setup text change listener for auto-save
+                editText.addTextChangedListener(object : TextWatcher {
+                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                    override fun afterTextChanged(s: Editable?) {
+                        autoSaveJob?.cancel()
+                        autoSaveJob = serviceScope.launch {
+                            delay(1500)
+                            saveCurrentNote()
+                        }
+                    }
+                })
+                
+                // Focus on edit text to show keyboard
+                editText.setOnClickListener {
+                    editText.requestFocus()
+                    showKeyboard(editText)
                 }
-            })
-            
-            // Setup text change listener for auto-save
-            editText.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-                override fun afterTextChanged(s: Editable?) {
-                    autoSaveJob?.cancel()
-                    autoSaveJob = serviceScope.launch {
-                        delay(1500)
+                
+                // Close button
+                btnClose.setOnClickListener {
+                    saveCurrentNote()
+                    closeNotepad()
+                }
+                
+                // Save button
+                btnSave.setOnClickListener {
+                    saveCurrentNote()
+                    android.widget.Toast.makeText(this@FloatingWidgetService, "Note saved", android.widget.Toast.LENGTH_SHORT).show()
+                }
+                
+                // Pin button
+                btnPin.setOnClickListener {
+                    currentNote?.let { note ->
+                        note.isPinned = !note.isPinned
                         saveCurrentNote()
+                        updatePinButton(btnPin)
+                        val msg = if (note.isPinned) "Note pinned" else "Note unpinned"
+                        android.widget.Toast.makeText(this@FloatingWidgetService, msg, android.widget.Toast.LENGTH_SHORT).show()
                     }
                 }
-            })
-            
-            // Focus on edit text to show keyboard
-            editText.setOnClickListener {
-                editText.requestFocus()
-                showKeyboard(editText)
-            }
-            
-            // Close button
-            btnClose.setOnClickListener {
-                saveCurrentNote()
-                closeNotepad()
-            }
-            
-            // Save button
-            btnSave.setOnClickListener {
-                saveCurrentNote()
-                android.widget.Toast.makeText(this@FloatingWidgetService, "Note saved", android.widget.Toast.LENGTH_SHORT).show()
-            }
-            
-            // Pin button
-            btnPin.setOnClickListener {
-                currentNote?.let { note ->
-                    note.isPinned = !note.isPinned
+                
+                // New note button
+                btnNew.setOnClickListener {
                     saveCurrentNote()
-                    updatePinButton(btnPin)
-                    val msg = if (note.isPinned) "Note pinned" else "Note unpinned"
-                    android.widget.Toast.makeText(this@FloatingWidgetService, msg, android.widget.Toast.LENGTH_SHORT).show()
-                }
-            }
-            
-            // New note button
-            btnNew.setOnClickListener {
-                saveCurrentNote()
-                currentNote = Note()
-                editText.setText("")
-                noteRepository.setCurrentNote(currentNote)
-                updatePinButton(btnPin)
-            }
-            
-            // Delete button
-            btnDelete.setOnClickListener {
-                currentNote?.let { note ->
-                    noteRepository.deleteNote(note.id)
-                    android.widget.Toast.makeText(this@FloatingWidgetService, "Note deleted", android.widget.Toast.LENGTH_SHORT).show()
                     currentNote = Note()
                     editText.setText("")
                     noteRepository.setCurrentNote(currentNote)
                     updatePinButton(btnPin)
                 }
-            }
-            
-            // Shred button (secure delete)
-            btnShred.setOnClickListener {
-                currentNote?.let { note ->
-                    noteRepository.shredNote(note.id)
-                    android.widget.Toast.makeText(this@FloatingWidgetService, "Note securely shredded", android.widget.Toast.LENGTH_SHORT).show()
-                    currentNote = Note()
-                    editText.setText("")
-                    noteRepository.setCurrentNote(currentNote)
-                    updatePinButton(btnPin)
+                
+                // Delete button
+                btnDelete.setOnClickListener {
+                    currentNote?.let { note ->
+                        noteRepository.deleteNote(note.id)
+                        android.widget.Toast.makeText(this@FloatingWidgetService, "Note deleted", android.widget.Toast.LENGTH_SHORT).show()
+                        currentNote = Note()
+                        editText.setText("")
+                        noteRepository.setCurrentNote(currentNote)
+                        updatePinButton(btnPin)
+                    }
                 }
+                
+                // Shred button (secure delete)
+                btnShred.setOnClickListener {
+                    currentNote?.let { note ->
+                        noteRepository.shredNote(note.id)
+                        android.widget.Toast.makeText(this@FloatingWidgetService, "Note securely shredded", android.widget.Toast.LENGTH_SHORT).show()
+                        currentNote = Note()
+                        editText.setText("")
+                        noteRepository.setCurrentNote(currentNote)
+                        updatePinButton(btnPin)
+                    }
+                }
+                
+                // Setup drag for header bar
+                setupNotepadDrag(headerBar)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                android.widget.Toast.makeText(this@FloatingWidgetService, "UI setup error: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
             }
-            
-            // Setup drag for header bar
-            setupNotepadDrag(headerBar)
         }
     }
     
