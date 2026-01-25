@@ -2,10 +2,11 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="oval">
     
-    <solid android:color="#E6BB86FC" />
+    <!-- Gun metal bluish with slight transparency -->
+    <solid android:color="#D92C3E50" />
     
     <stroke
         android:width="2dp"
-        android:color="#FFFFFF" />
+        android:color="#5D9CBA" />
     
 </shape>

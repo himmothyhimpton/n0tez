@@ -4,9 +4,10 @@
     
     <solid android:color="#00000000" />
     
+    <!-- Gun metal bluish border -->
     <stroke
         android:width="3dp"
-        android:color="#BB86FC" />
+        android:color="#5D9CBA" />
     
     <corners android:radius="16dp" />
     

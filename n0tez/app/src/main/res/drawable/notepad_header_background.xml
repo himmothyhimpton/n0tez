@@ -2,7 +2,8 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     
-    <solid android:color="#DD6200EE" />
+    <!-- Gun metal bluish with slight transparency -->
+    <solid android:color="#DD2C3E50" />
     
     <corners
         android:topLeftRadius="13dp"
