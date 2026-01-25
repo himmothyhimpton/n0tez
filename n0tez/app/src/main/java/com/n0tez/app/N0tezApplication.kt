@@ -9,8 +9,8 @@ import android.os.Build
 class N0tezApplication : Application() {
     
     companion object {
-        const val CHANNEL_ID = "n0tez_floating_widget"
-        const val CHANNEL_NAME = "Floating Widget"
+        const val CHANNEL_ID = "building_block_floating_widget"
+        const val CHANNEL_NAME = "Building-Block Widget"
         private var instance: N0tezApplication? = null
         
         fun getContext(): Context {
@@ -31,7 +31,7 @@ class N0tezApplication : Application() {
                 CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = "Notification for n0tez floating widget"
+                description = "Notification for Building-Block floating widget"
                 setShowBadge(false)
             }
             
