@@ -50,7 +50,7 @@ class FloatingWidgetService : Service() {
         noteRepository = NoteRepository(this)
         
         // Load saved transparency level
-        transparencyLevel = getSharedPreferences("n0tez_prefs", MODE_PRIVATE)
+        transparencyLevel = getSharedPreferences("building_block_prefs", MODE_PRIVATE)
             .getInt("widget_transparency", 20)
         
         // Start as foreground service
@@ -76,7 +76,7 @@ class FloatingWidgetService : Service() {
         )
         
         val notification = NotificationCompat.Builder(this, N0tezApplication.CHANNEL_ID)
-            .setContentTitle("n0tez Active")
+            .setContentTitle("Building-Block Active")
             .setContentText("Tap to open app, or use floating bubble")
             .setSmallIcon(R.drawable.ic_notification)
             .setContentIntent(openPendingIntent)
