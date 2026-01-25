@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity() {
     private fun showOverlayPermissionDialog() {
         AlertDialog.Builder(this)
             .setTitle("Permission Required")
-            .setMessage("n0tez needs permission to draw over other apps so the floating notepad can appear on top of your screen. This is essential for the transparent overlay feature.")
+            .setMessage("Building-Block needs permission to draw over other apps so the floating notepad can appear on top of your screen. This is essential for the transparent overlay feature.")
             .setPositiveButton("Grant Permission") { _, _ ->
                 requestOverlayPermission()
             }
