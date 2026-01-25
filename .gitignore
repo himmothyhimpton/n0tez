@@ -5,3 +5,7 @@
 # Local temp artifacts
 .tmp/
 n0tez/.gradle/
+-e 
+# Environment files
+*.env
+*.env.*
