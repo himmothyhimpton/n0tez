@@ -27,7 +27,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="n0tez"
+                android:text="Building-Block"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -99,8 +99,8 @@
                 android:layout_marginHorizontal="8dp"
                 android:max="100"
                 android:progress="20"
-                android:progressTint="#BB86FC"
-                android:thumbTint="#BB86FC" />
+                android:progressTint="#5D9CBA"
+                android:thumbTint="#5D9CBA" />
 
             <TextView
                 android:id="@+id/transparency_label"
