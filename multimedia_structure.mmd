@@ -1,0 +1,30 @@
+graph TB
+    Main[MainActivity] --> Multimedia[MultimediaActivity]
+    
+    Multimedia --> VoiceRec[VoiceRecorderActivity]
+    Multimedia --> AudioEdit[AudioEditorActivity]
+    Multimedia --> PhotoEdit[PhotoEditorActivity]
+    Multimedia --> VideoEdit[VideoEditorActivity]
+    Multimedia --> Gallery[MediaGallery - Planned]
+    
+    VoiceRec --> AudioFile[Audio Files<br/>media/audio/*.m4a]
+    AudioEdit --> AudioFile
+    
+    PhotoEdit --> ImageFile[Image Files<br/>media/images/*.jpg]
+    VideoEdit --> ImageFile
+    VideoEdit --> VideoFile[Video Files<br/>media/videos/*.mp4]
+    
+    Note[Note Model] -.-> Attachments[MediaAttachment List]
+    Attachments -.-> AudioFile
+    Attachments -.-> ImageFile
+    Attachments -.-> VideoFile
+    
+    style Main fill:#5D9CBA
+    style Multimedia fill:#7CB342
+    style VoiceRec fill:#FFA726
+    style AudioEdit fill:#FFA726
+    style PhotoEdit fill:#AB47BC
+    style VideoEdit fill:#EF5350
+    style Gallery fill:#CCCCCC
+    style Note fill:#42A5F5
+    style Attachments fill:#42A5F5
