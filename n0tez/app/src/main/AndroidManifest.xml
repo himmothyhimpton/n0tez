@@ -10,6 +10,21 @@
     
     <!-- Permissions for storage -->
     <uses-permission android:name="android.permission.VIBRATE" />
+    
+    <!-- Multimedia permissions -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" 
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" 
+        android:maxSdkVersion="32" />
+    
+    <!-- Hardware features -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
 
     <application
         android:name=".N0tezApplication"
@@ -75,6 +90,41 @@
             android:exported="false"
             android:theme="@style/Theme.N0tez"
             android:windowSoftInputMode="adjustResize" />
+            
+        <!-- Multimedia Activity -->
+        <activity
+            android:name=".MultimediaActivity"
+            android:exported="false"
+            android:theme="@style/Theme.N0tez"
+            android:parentActivityName=".MainActivity" />
+            
+        <!-- Voice Recorder Activity -->
+        <activity
+            android:name=".VoiceRecorderActivity"
+            android:exported="false"
+            android:theme="@style/Theme.N0tez"
+            android:parentActivityName=".MultimediaActivity" />
+            
+        <!-- Audio Editor Activity -->
+        <activity
+            android:name=".AudioEditorActivity"
+            android:exported="false"
+            android:theme="@style/Theme.N0tez"
+            android:parentActivityName=".MultimediaActivity" />
+            
+        <!-- Photo Editor Activity -->
+        <activity
+            android:name=".PhotoEditorActivity"
+            android:exported="false"
+            android:theme="@style/Theme.N0tez"
+            android:parentActivityName=".MultimediaActivity" />
+            
+        <!-- Video Editor Activity -->
+        <activity
+            android:name=".VideoEditorActivity"
+            android:exported="false"
+            android:theme="@style/Theme.N0tez"
+            android:parentActivityName=".MultimediaActivity" />
             
     </application>
 

@@ -9,7 +9,8 @@ data class Note(
     var createdAt: Long = System.currentTimeMillis(),
     var updatedAt: Long = System.currentTimeMillis(),
     var isPinned: Boolean = false,
-    var isDeleted: Boolean = false
+    var isDeleted: Boolean = false,
+    var attachments: MutableList<MediaAttachment> = mutableListOf()
 ) {
     fun getPreviewText(): String {
         return if (content.length > 50) {

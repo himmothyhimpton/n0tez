@@ -67,6 +67,10 @@ class MainActivity : AppCompatActivity() {
         binding.cardMyNotes.setOnClickListener {
             startActivity(Intent(this, NotesListActivity::class.java))
         }
+        
+        binding.cardMultimedia.setOnClickListener {
+            startActivity(Intent(this, MultimediaActivity::class.java))
+        }
     }
     
     private fun handleFloatingWidgetClick() {
