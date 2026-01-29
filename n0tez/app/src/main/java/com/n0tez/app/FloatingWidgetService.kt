@@ -161,15 +161,34 @@ class FloatingWidgetService : Service() {
     }
     
     private fun toggleNotepad() {
-        if (isNotepadExpanded) {
+        if (isNotepadExpanded && floatingNotepadView != null) {
             closeNotepad()
+        } else if (!isNotepadExpanded && floatingNotepadView == null) {
+            openNotepad()
         } else {
+            // Reset inconsistent state
+            cleanupNotepadState()
+            // Then open fresh
             openNotepad()
         }
     }
     
+    private fun cleanupNotepadState() {
+        floatingNotepadView?.let {
+            try {
+                windowManager.removeView(it)
+            } catch (e: Exception) { }
+        }
+        floatingNotepadView = null
+        isNotepadExpanded = false
+        notepadParams = null
+    }
+    
     private fun openNotepad() {
-        if (floatingNotepadView != null) return
+        // Double-check state is clean before opening
+        if (floatingNotepadView != null) {
+            cleanupNotepadState()
+        }
         
         try {
             val inflater = LayoutInflater.from(this)
@@ -206,13 +225,7 @@ class FloatingWidgetService : Service() {
             e.printStackTrace()
             android.widget.Toast.makeText(this, "Failed to open notepad: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
             // Clean up on failure
-            floatingNotepadView?.let {
-                try {
-                    windowManager.removeView(it)
-                } catch (ex: Exception) { }
-            }
-            floatingNotepadView = null
-            isNotepadExpanded = false
+            cleanupNotepadState()
         }
     }
     
@@ -406,19 +419,41 @@ class FloatingWidgetService : Service() {
     }
     
     private fun closeNotepad() {
-        saveCurrentNote()
-        floatingNotepadView?.let {
-            // Hide keyboard first
-            val editText = it.findViewById<EditText>(R.id.notepad_edit_text)
-            hideKeyboard(editText)
-            
-            windowManager.removeView(it)
+        try {
+            saveCurrentNote()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
+        
+        floatingNotepadView?.let {
+            try {
+                // Hide keyboard first
+                val editText = it.findViewById<EditText>(R.id.notepad_edit_text)
+                if (editText != null) {
+                    hideKeyboard(editText)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            
+            try {
+                windowManager.removeView(it)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        
+        // Always reset state
         floatingNotepadView = null
         isNotepadExpanded = false
+        notepadParams = null
         
         // Restore bubble appearance
-        floatingBubbleView?.findViewById<View>(R.id.bubble_icon)?.alpha = 1f
+        try {
+            floatingBubbleView?.findViewById<View>(R.id.bubble_icon)?.alpha = 1f
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
     
     private fun showKeyboard(editText: EditText) {
