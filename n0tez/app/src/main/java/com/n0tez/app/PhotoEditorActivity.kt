@@ -1,5 +1,6 @@
 package com.n0tez.app
 
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -11,7 +12,9 @@ import android.widget.SeekBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import com.n0tez.app.databinding.ActivityPhotoEditorBinding
+import com.yalantis.ucrop.UCrop
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -33,6 +36,21 @@ class PhotoEditorActivity : AppCompatActivity() {
         uri?.let {
             imageUri = it
             loadImage(it)
+        }
+    }
+    
+    private val cropLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val resultUri = UCrop.getOutput(result.data!!)
+            resultUri?.let { uri ->
+                loadImage(uri)
+                Toast.makeText(this, "Image cropped successfully", Toast.LENGTH_SHORT).show()
+            }
+        } else if (result.resultCode == UCrop.RESULT_ERROR) {
+            val cropError = UCrop.getError(result.data!!)
+            Toast.makeText(this, "Crop error: ${cropError?.message}", Toast.LENGTH_LONG).show()
         }
     }
     
@@ -110,6 +128,7 @@ class PhotoEditorActivity : AppCompatActivity() {
             inputStream?.close()
             
             editedBitmap = originalBitmap?.copy(Bitmap.Config.ARGB_8888, true)
+            imageUri = uri
             displayImage()
             
             Toast.makeText(this, "Image loaded", Toast.LENGTH_SHORT).show()
@@ -124,6 +143,7 @@ class PhotoEditorActivity : AppCompatActivity() {
         try {
             originalBitmap = BitmapFactory.decodeFile(path)
             editedBitmap = originalBitmap?.copy(Bitmap.Config.ARGB_8888, true)
+            imageUri = Uri.fromFile(File(path))
             displayImage()
             
             Toast.makeText(this, "Image loaded", Toast.LENGTH_SHORT).show()
@@ -193,31 +213,48 @@ class PhotoEditorActivity : AppCompatActivity() {
     }
     
     private fun cropImage() {
-        // TODO: Implement crop functionality with UCrop library
-        Toast.makeText(
-            this,
-            "Crop functionality will be implemented with UCrop library",
-            Toast.LENGTH_LONG
-        ).show()
-        
-        // Placeholder for actual implementation
-        /*
         editedBitmap?.let { bitmap ->
-            val tempFile = File(cacheDir, "temp_crop.jpg")
-            val outputFile = File(cacheDir, "cropped.jpg")
-            
-            // Save current bitmap to temp file
-            FileOutputStream(tempFile).use { out ->
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
+            try {
+                // Create temp file for current edited bitmap
+                val tempFile = File(cacheDir, "temp_crop_${System.currentTimeMillis()}.jpg")
+                val outputFile = File(cacheDir, "cropped_${System.currentTimeMillis()}.jpg")
+                
+                // Save current bitmap to temp file
+                FileOutputStream(tempFile).use { out ->
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
+                }
+                
+                val sourceUri = Uri.fromFile(tempFile)
+                val destinationUri = Uri.fromFile(outputFile)
+                
+                // Configure UCrop with Building-Block theme colors
+                val options = UCrop.Options().apply {
+                    setToolbarColor(resources.getColor(R.color.gunmetal_primary, theme))
+                    setStatusBarColor(resources.getColor(R.color.gunmetal_dark, theme))
+                    setToolbarWidgetColor(resources.getColor(R.color.white, theme))
+                    setActiveControlsWidgetColor(resources.getColor(R.color.md_theme_tertiary, theme))
+                    setFreeStyleCropEnabled(true)
+                    setShowCropGrid(true)
+                    setShowCropFrame(true)
+                    setHideBottomControls(false)
+                    setCompressionQuality(100)
+                }
+                
+                // Launch UCrop
+                val uCropIntent = UCrop.of(sourceUri, destinationUri)
+                    .withOptions(options)
+                    .withMaxResultSize(4000, 4000)
+                    .getIntent(this)
+                
+                cropLauncher.launch(uCropIntent)
+                
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(this, "Failed to start crop: ${e.message}", Toast.LENGTH_LONG).show()
             }
-            
-            // Launch UCrop
-            UCrop.of(Uri.fromFile(tempFile), Uri.fromFile(outputFile))
-                .withAspectRatio(1f, 1f)
-                .withMaxResultSize(2000, 2000)
-                .start(this)
+        } ?: run {
+            Toast.makeText(this, "Please load an image first", Toast.LENGTH_SHORT).show()
         }
-        */
     }
     
     private fun saveEditedImage() {
