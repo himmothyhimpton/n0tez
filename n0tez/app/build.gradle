@@ -73,9 +73,9 @@ dependencies {
     // Image Cropping
     implementation 'com.github.yalantis:ucrop:2.2.8'
     
-    // Video/Audio processing with FFmpeg (mobile-ffmpeg is deprecated, use arthenica/ffmpeg-kit)
-    // Using LTS version for better compatibility
-    implementation 'com.arthenica:ffmpeg-kit-full:6.0-2.LTS'
+    // Video/Audio processing with FFmpeg
+    // Using audio variant which is confirmed on Maven Central
+    implementation 'com.arthenica:ffmpeg-kit-audio:6.0-2'
     
     // Testing
     testImplementation 'junit:junit:4.13.2'
