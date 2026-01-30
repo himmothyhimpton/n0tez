@@ -1,6 +1,6 @@
-# n0tez - Transparent Notepad App
+# FaceShot-BuildingBlock - Transparent Notepad Tool
 
-A transparent notepad application for Android that allows you to create and manage notes with a floating widget interface. Perfect for copying phone numbers, passwords, or any information from one app to another.
+A transparent notepad application for Android that works as a companion tool for **FaceShot-ChopShop** (https://faceshot-chopshop-1.onrender.com). It allows you to create and manage notes with a floating widget interface. Perfect for copying phone numbers, passwords, prompt IDs, or any information from one app to another.
 
 ## Key Features
 
@@ -23,12 +23,20 @@ A transparent notepad application for Android that allows you to create and mana
 - **Secure Shred**: Military-grade secure deletion for sensitive notes
 - **No Cloud**: All data stays on your device - no accounts required
 
+## Use with FaceShot-ChopShop
+
+This app is designed as a handy tool for users of FaceShot-ChopShop:
+- **Copy API Prompts**: Keep track of generation prompts while using AI tools
+- **Store Credit Info**: Note down credit balances and transaction details
+- **Quick Reference**: Save tool settings and parameters for repeated use
+- **Copy Media URLs**: Easily copy and paste media URLs between apps
+
 ## Technical Requirements
 
 - **Minimum Android Version**: Android 8.0 (API 26)
 - **Target Android Version**: Android 14 (API 34)
 - **Architecture**: MVVM with Kotlin
-- **UI**: Material Design 3
+- **UI**: Material Design 3 with FaceShot purple/pink gradient theme
 
 ## Permissions
 
@@ -62,16 +70,16 @@ adb install app/build/outputs/apk/debug/app-debug.apk
 ## Google Play Store Submission
 
 ### Ready Assets
-- ✅ Material Design 3 UI
+- ✅ Material Design 3 UI with FaceShot branding
 - ✅ Proper permission handling
 - ✅ Privacy-focused design
-- ✅ App icon (adaptive icon)
+- ✅ App icon (adaptive icon with purple/pink gradient)
 
 ### Required for Submission
-1. **App Icon**: 512x512 PNG for Play Store listing (generate from adaptive icon)
+1. **App Icon**: 512x512 PNG for Play Store listing
 2. **Screenshots**: 8 screenshots showing key features
 3. **Privacy Policy**: Required URL for apps with overlay permission
-4. **Short Description** (80 chars): "Transparent notepad with floating widget - copy info from any app"
+4. **Short Description** (80 chars): "Transparent notepad with floating widget - FaceShot companion tool"
 5. **Full Description**: See PLAY_STORE_DESCRIPTIONS.md
 
 ## How to Use
@@ -83,6 +91,12 @@ adb install app/build/outputs/apk/debug/app-debug.apk
 5. **Type Your Notes**: The background is see-through so you can copy info from underneath
 6. **Adjust Transparency**: Use the slider to make the backdrop more or less transparent
 7. **Save & Close**: Tap the close button - notes are auto-saved
+
+## Links
+
+- **FaceShot-ChopShop Website**: https://faceshot-chopshop-1.onrender.com
+- **Telegram Channel**: https://t.me/FaceSwapVideoAi
+- **Mini App**: https://telegramalam.onrender.com/miniapp/
 
 ## License
 
