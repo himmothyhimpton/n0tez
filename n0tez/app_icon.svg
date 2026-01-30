@@ -1,53 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background with gradient -->
   <defs>
     <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#6200EE;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#3700B3;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#6B35B8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#EE4B8B;stop-opacity:1" />
     </linearGradient>
-    
-    <!-- Transparent effect -->
-    <filter id="transparency" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="2"/>
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.7"/>
-      </feComponentTransfer>
-    </filter>
+    <linearGradient id="blockGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E8DEF8;stop-opacity:1" />
+    </linearGradient>
   </defs>
   
-  <!-- Main background -->
-  <rect width="1024" height="1024" rx="200" fill="url(#bgGradient)"/>
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="200" ry="200" fill="url(#bgGradient)"/>
   
-  <!-- Transparent overlay effect -->
-  <rect x="100" y="100" width="824" height="824" rx="150" fill="#FFFFFF" opacity="0.1" filter="url(#transparency)"/>
+  <!-- Main 3D Building Block -->
+  <!-- Top face (brightest) -->
+  <path d="M280 380 L512 240 L744 380 L512 520 Z" fill="#FFFFFF" fill-opacity="1"/>
   
-  <!-- Notepad base -->
-  <rect x="200" y="250" width="624" height="524" rx="40" fill="#FFFFFF" opacity="0.9"/>
+  <!-- Left face (medium) -->
+  <path d="M280 380 L512 520 L512 720 L280 580 Z" fill="#FFFFFF" fill-opacity="0.7"/>
   
-  <!-- Notepad lines -->
-  <line x1="280" y1="350" x2="744" y2="350" stroke="#E0E0E0" stroke-width="3"/>
-  <line x1="280" y1="420" x2="744" y2="420" stroke="#E0E0E0" stroke-width="3"/>
-  <line x1="280" y1="490" x2="744" y2="490" stroke="#E0E0E0" stroke-width="3"/>
-  <line x1="280" y1="560" x2="744" y2="560" stroke="#E0E0E0" stroke-width="3"/>
-  <line x1="280" y1="630" x2="744" y2="630" stroke="#E0E0E0" stroke-width="3"/>
+  <!-- Right face (darker) -->
+  <path d="M744 380 L512 520 L512 720 L744 580 Z" fill="#FFFFFF" fill-opacity="0.5"/>
   
-  <!-- Text content (showing through transparency) -->
-  <text x="300" y="330" font-family="Arial, sans-serif" font-size="80" fill="#333333" opacity="0.8">n0tez</text>
-  <text x="300" y="400" font-family="Arial, sans-serif" font-size="45" fill="#666666" opacity="0.7">Transparent</text>
-  <text x="300" y="470" font-family="Arial, sans-serif" font-size="45" fill="#666666" opacity="0.7">Notes</text>
+  <!-- Plus/Add symbol on top (tool indicator) -->
+  <rect x="472" y="340" width="80" height="24" rx="4" fill="#6B35B8" fill-opacity="0.9"/>
+  <rect x="500" y="312" width="24" height="80" rx="4" fill="#6B35B8" fill-opacity="0.9"/>
   
-  <!-- Floating widget indicator -->
-  <circle cx="750" cy="750" r="80" fill="#03DAC5" opacity="0.8"/>
-  <rect x="720" y="720" width="60" height="8" rx="4" fill="#FFFFFF"/>
-  <rect x="720" y="740" width="60" height="8" rx="4" fill="#FFFFFF"/>
-  <rect x="720" y="760" width="60" height="8" rx="4" fill="#FFFFFF"/>
+  <!-- Small connector blocks (showing modular/building nature) -->
+  <!-- Bottom left small block -->
+  <path d="M200 560 L280 520 L360 560 L360 640 L280 680 L200 640 Z" fill="#FFFFFF" fill-opacity="0.4"/>
   
-  <!-- Transparency indicator -->
-  <circle cx="300" cy="750" r="60" fill="#FFFFFF" opacity="0.3"/>
-  <circle cx="300" cy="750" r="40" fill="#FFFFFF" opacity="0.6"/>
-  <circle cx="300" cy="750" r="20" fill="#FFFFFF" opacity="0.9"/>
+  <!-- Bottom right small block -->
+  <path d="M664 560 L744 520 L824 560 L824 640 L744 680 L664 640 Z" fill="#FFFFFF" fill-opacity="0.4"/>
   
-  <!-- Subtle glow effect -->
-  <circle cx="512" cy="512" r="400" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.2"/>
+  <!-- Subtle glow/highlight -->
+  <ellipse cx="512" cy="380" rx="200" ry="60" fill="#FFFFFF" fill-opacity="0.1"/>
 </svg>
