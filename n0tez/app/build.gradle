@@ -74,7 +74,8 @@ dependencies {
     implementation 'com.github.yalantis:ucrop:2.2.8'
     
     // Video/Audio processing with FFmpeg (mobile-ffmpeg is deprecated, use arthenica/ffmpeg-kit)
-    implementation 'com.arthenica:ffmpeg-kit-full:6.0-2'
+    // Using min-gpl variant for smaller size and better compatibility
+    implementation 'com.arthenica:ffmpeg-kit-min-gpl:6.0-2'
     
     // Testing
     testImplementation 'junit:junit:4.13.2'
