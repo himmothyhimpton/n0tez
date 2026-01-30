@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.n0tez.app'
+    namespace 'com.faceshot.buildingblock'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.n0tez.app"
+        applicationId "com.faceshot.buildingblock"
         minSdk 26
         targetSdk 34
         versionCode 1
