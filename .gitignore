@@ -25,3 +25,7 @@ n0tez/.gradle/
 # Environment files
 *.env
 *.env.*
+-e 
+# Environment files
+*.env
+*.env.*
