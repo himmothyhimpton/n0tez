@@ -5,33 +5,51 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
     
-    <!-- Notepad shape -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M34,30h40c2.2,0 4,1.8 4,4v40c0,2.2 -1.8,4 -4,4h-40c-2.2,0 -4,-1.8 -4,-4v-40c0,-2.2 1.8,-4 4,-4z"
-        android:strokeWidth="0"
-        android:fillAlpha="0.3"/>
+    <!-- Building Block Tool Icon for FaceShot -->
     
-    <!-- Note lines -->
+    <!-- Main block shape (3D effect) -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M40,42h28v2h-28z"
+        android:pathData="M30,38 L54,26 L78,38 L78,62 L54,74 L30,62 Z"
+        android:fillAlpha="0.95"/>
+    
+    <!-- Block top face (lighter) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M30,38 L54,26 L78,38 L54,50 Z"
+        android:fillAlpha="1.0"/>
+    
+    <!-- Block left face (medium) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M30,38 L54,50 L54,74 L30,62 Z"
+        android:fillAlpha="0.7"/>
+    
+    <!-- Block right face (darker) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M78,38 L54,50 L54,74 L78,62 Z"
+        android:fillAlpha="0.5"/>
+    
+    <!-- Plus sign on top face (tool indicator) -->
+    <path
+        android:fillColor="#FF6B35B8"
+        android:pathData="M50,36 L58,36 L58,40 L50,40 Z"
         android:fillAlpha="0.9"/>
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M40,50h28v2h-28z"
-        android:fillAlpha="0.9"/>
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M40,58h20v2h-20z"
+        android:fillColor="#FF6B35B8"
+        android:pathData="M52,34 L56,34 L56,42 L52,42 Z"
         android:fillAlpha="0.9"/>
     
-    <!-- Pencil icon -->
+    <!-- Small connector blocks (showing modular nature) -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M62,64l8,-8 4,4 -8,8z"/>
+        android:pathData="M66,56 L72,53 L78,56 L78,62 L72,65 L66,62 Z"
+        android:fillAlpha="0.6"/>
+    
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M72,54l4,4 -2,2 -4,-4z"/>
+        android:pathData="M30,56 L36,53 L42,56 L42,62 L36,65 L30,62 Z"
+        android:fillAlpha="0.6"/>
     
 </vector>
