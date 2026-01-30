@@ -73,9 +73,8 @@ dependencies {
     // Image Cropping
     implementation 'com.github.yalantis:ucrop:2.2.8'
     
-    // Video/Audio processing - FFmpeg-kit temporarily disabled due to Maven resolution issues
-    // TODO: Re-add when repository issue is resolved
-    // implementation 'com.arthenica:ffmpeg-kit-full-gpl:6.0-2.LTS'
+    // Video/Audio processing with FFmpeg
+    implementation 'com.arthenica:ffmpeg-kit-full:6.0-2'
     
     // Testing
     testImplementation 'junit:junit:4.13.2'
