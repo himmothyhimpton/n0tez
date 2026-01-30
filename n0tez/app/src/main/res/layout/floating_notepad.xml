@@ -27,9 +27,9 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Building-Block"
+                android:text="FaceShot-BuildingBlock"
                 android:textColor="#FFFFFF"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:textStyle="bold"
                 android:paddingStart="8dp" />
 
@@ -83,7 +83,7 @@
             android:gravity="center_vertical"
             android:paddingHorizontal="12dp"
             android:paddingVertical="4dp"
-            android:background="#CC333333">
+            android:background="#CC2D1B47">
 
             <ImageView
                 android:layout_width="20dp"
@@ -99,8 +99,8 @@
                 android:layout_marginHorizontal="8dp"
                 android:max="100"
                 android:progress="20"
-                android:progressTint="#5D9CBA"
-                android:thumbTint="#5D9CBA" />
+                android:progressTint="#BB86FC"
+                android:thumbTint="#BB86FC" />
 
             <TextView
                 android:id="@+id/transparency_label"
