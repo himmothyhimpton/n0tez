@@ -227,12 +227,12 @@ class PhotoEditorActivity : AppCompatActivity() {
                 val sourceUri = Uri.fromFile(tempFile)
                 val destinationUri = Uri.fromFile(outputFile)
                 
-                // Configure UCrop with Building-Block theme colors
+                // Configure UCrop with FaceShot theme colors
                 val options = UCrop.Options().apply {
-                    setToolbarColor(resources.getColor(R.color.gunmetal_primary, theme))
-                    setStatusBarColor(resources.getColor(R.color.gunmetal_dark, theme))
+                    setToolbarColor(resources.getColor(R.color.faceshot_purple_primary, theme))
+                    setStatusBarColor(resources.getColor(R.color.faceshot_purple_dark, theme))
                     setToolbarWidgetColor(resources.getColor(R.color.white, theme))
-                    setActiveControlsWidgetColor(resources.getColor(R.color.md_theme_tertiary, theme))
+                    setActiveControlsWidgetColor(resources.getColor(R.color.faceshot_pink_accent, theme))
                     setFreeStyleCropEnabled(true)
                     setShowCropGrid(true)
                     setShowCropFrame(true)
