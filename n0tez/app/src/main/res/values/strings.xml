@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Building-Block</string>
-    <string name="title_activity_main">Building-Block</string>
+    <string name="app_name">FaceShot-BuildingBlock</string>
+    <string name="title_activity_main">FaceShot-BuildingBlock</string>
     <string name="create_note">Create Note</string>
     <string name="floating_widget">Floating Widget</string>
     <string name="settings">Settings</string>

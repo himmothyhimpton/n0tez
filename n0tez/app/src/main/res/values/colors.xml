@@ -1,81 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Gun Metal Bluish Colors -->
-    <color name="gunmetal_light">#FF4A5568</color>
-    <color name="gunmetal_primary">#FF2C3E50</color>
-    <color name="gunmetal_dark">#FF1A252F</color>
-    <color name="gunmetal_accent">#FF34495E</color>
-    <color name="gunmetal_transparent">#D92C3E50</color>
-    <color name="gunmetal_accent_transparent">#CC34495E</color>
+    <!-- FaceShot Brand Colors - Purple/Pink Gradient Theme -->
+    <color name="faceshot_purple_primary">#FF6B35B8</color>
+    <color name="faceshot_purple_dark">#FF4A2478</color>
+    <color name="faceshot_purple_light">#FF9B5DE5</color>
+    <color name="faceshot_pink_accent">#FFEE4B8B</color>
+    <color name="faceshot_pink_light">#FFFF6B9D</color>
+    <color name="faceshot_gradient_start">#FF6B35B8</color>
+    <color name="faceshot_gradient_end">#FFEE4B8B</color>
+    <color name="faceshot_dark_bg">#FF1A1025</color>
+    <color name="faceshot_surface">#FF2D1B47</color>
     
-    <!-- Legacy color references (mapped to gunmetal) -->
-    <color name="purple_200">#FF4A5568</color>
-    <color name="purple_500">#FF2C3E50</color>
-    <color name="purple_700">#FF1A252F</color>
-    <color name="teal_200">#FF5D9CBA</color>
-    <color name="teal_700">#FF3A7A9C</color>
+    <!-- Legacy color references (mapped to FaceShot theme) -->
+    <color name="purple_200">#FF9B5DE5</color>
+    <color name="purple_500">#FF6B35B8</color>
+    <color name="purple_700">#FF4A2478</color>
+    <color name="teal_200">#FFEE4B8B</color>
+    <color name="teal_700">#FFCC3D75</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     
-    <!-- Material Design 3 colors - Gun Metal Theme -->
-    <color name="md_theme_primary">#FF2C3E50</color>
+    <!-- Material Design 3 colors - FaceShot Purple/Pink Theme -->
+    <color name="md_theme_primary">#FF6B35B8</color>
     <color name="md_theme_onPrimary">#FFFFFFFF</color>
-    <color name="md_theme_primaryContainer">#FF34495E</color>
-    <color name="md_theme_onPrimaryContainer">#FFE8ECF0</color>
-    <color name="md_theme_secondary">#FF4A5568</color>
+    <color name="md_theme_primaryContainer">#FF9B5DE5</color>
+    <color name="md_theme_onPrimaryContainer">#FFFFFFFF</color>
+    <color name="md_theme_secondary">#FFEE4B8B</color>
     <color name="md_theme_onSecondary">#FFFFFFFF</color>
-    <color name="md_theme_secondaryContainer">#FF5D6D7E</color>
-    <color name="md_theme_onSecondaryContainer">#FFE8ECF0</color>
-    <color name="md_theme_tertiary">#FF5D9CBA</color>
-    <color name="md_theme_onTertiary">#FFFFFFFF</color>
-    <color name="md_theme_tertiaryContainer">#FF85C1E0</color>
-    <color name="md_theme_onTertiaryContainer">#FF1A252F</color>
+    <color name="md_theme_secondaryContainer">#FFFF6B9D</color>
+    <color name="md_theme_onSecondaryContainer">#FF1A1025</color>
+    <color name="md_theme_tertiary">#FFBB86FC</color>
+    <color name="md_theme_onTertiary">#FF1A1025</color>
+    <color name="md_theme_tertiaryContainer">#FFD8B4FE</color>
+    <color name="md_theme_onTertiaryContainer">#FF1A1025</color>
     <color name="md_theme_error">#FFB3261E</color>
     <color name="md_theme_onError">#FFFFFFFF</color>
     <color name="md_theme_errorContainer">#FFF9DEDC</color>
     <color name="md_theme_onErrorContainer">#FF410E0B</color>
-    <color name="md_theme_background">#FFF8F9FA</color>
-    <color name="md_theme_onBackground">#FF1A252F</color>
-    <color name="md_theme_surface">#FFF8F9FA</color>
-    <color name="md_theme_onSurface">#FF1A252F</color>
-    <color name="md_theme_surfaceVariant">#FFE2E8F0</color>
-    <color name="md_theme_onSurfaceVariant">#FF4A5568</color>
-    <color name="md_theme_outline">#FF718096</color>
-    <color name="md_theme_outlineVariant">#FFCBD5E0</color>
+    <color name="md_theme_background">#FF1A1025</color>
+    <color name="md_theme_onBackground">#FFFAF5FF</color>
+    <color name="md_theme_surface">#FF1A1025</color>
+    <color name="md_theme_onSurface">#FFFAF5FF</color>
+    <color name="md_theme_surfaceVariant">#FF2D1B47</color>
+    <color name="md_theme_onSurfaceVariant">#FFE8DEF8</color>
+    <color name="md_theme_outline">#FF9B5DE5</color>
+    <color name="md_theme_outlineVariant">#FF6B35B8</color>
     <color name="md_theme_scrim">#FF000000</color>
-    <color name="md_theme_inverseSurface">#FF2D3748</color>
-    <color name="md_theme_inverseOnSurface">#FFF7FAFC</color>
-    <color name="md_theme_inversePrimary">#FF5D9CBA</color>
+    <color name="md_theme_inverseSurface">#FFFAF5FF</color>
+    <color name="md_theme_inverseOnSurface">#FF1A1025</color>
+    <color name="md_theme_inversePrimary">#FF4A2478</color>
     
-    <!-- Dark theme colors - Gun Metal -->
-    <color name="md_theme_dark_primary">#FF5D9CBA</color>
-    <color name="md_theme_dark_onPrimary">#FF1A252F</color>
-    <color name="md_theme_dark_primaryContainer">#FF2C3E50</color>
-    <color name="md_theme_dark_onPrimaryContainer">#FFE8ECF0</color>
-    <color name="md_theme_dark_secondary">#FF85C1E0</color>
-    <color name="md_theme_dark_onSecondary">#FF1A252F</color>
-    <color name="md_theme_dark_secondaryContainer">#FF34495E</color>
-    <color name="md_theme_dark_onSecondaryContainer">#FFE8ECF0</color>
-    <color name="md_theme_dark_tertiary">#FF7EC8E3</color>
-    <color name="md_theme_dark_onTertiary">#FF1A252F</color>
-    <color name="md_theme_dark_tertiaryContainer">#FF3A7A9C</color>
-    <color name="md_theme_dark_onTertiaryContainer">#FFE8ECF0</color>
+    <!-- Dark theme colors - FaceShot -->
+    <color name="md_theme_dark_primary">#FFBB86FC</color>
+    <color name="md_theme_dark_onPrimary">#FF1A1025</color>
+    <color name="md_theme_dark_primaryContainer">#FF6B35B8</color>
+    <color name="md_theme_dark_onPrimaryContainer">#FFFAF5FF</color>
+    <color name="md_theme_dark_secondary">#FFFF6B9D</color>
+    <color name="md_theme_dark_onSecondary">#FF1A1025</color>
+    <color name="md_theme_dark_secondaryContainer">#FFEE4B8B</color>
+    <color name="md_theme_dark_onSecondaryContainer">#FFFAF5FF</color>
+    <color name="md_theme_dark_tertiary">#FFD8B4FE</color>
+    <color name="md_theme_dark_onTertiary">#FF1A1025</color>
+    <color name="md_theme_dark_tertiaryContainer">#FF9B5DE5</color>
+    <color name="md_theme_dark_onTertiaryContainer">#FFFAF5FF</color>
     <color name="md_theme_dark_error">#FFF2B8B5</color>
     <color name="md_theme_dark_onError">#FF601410</color>
     <color name="md_theme_dark_errorContainer">#FF8C1D18</color>
     <color name="md_theme_dark_onErrorContainer">#FFF9DEDC</color>
-    <color name="md_theme_dark_background">#FF0F1419</color>
-    <color name="md_theme_dark_onBackground">#FFE8ECF0</color>
-    <color name="md_theme_dark_surface">#FF0F1419</color>
-    <color name="md_theme_dark_onSurface">#FFE8ECF0</color>
-    <color name="md_theme_dark_surfaceVariant">#FF2D3748</color>
-    <color name="md_theme_dark_onSurfaceVariant">#FFCBD5E0</color>
-    <color name="md_theme_dark_outline">#FF718096</color>
-    <color name="md_theme_dark_outlineVariant">#FF4A5568</color>
+    <color name="md_theme_dark_background">#FF0D0612</color>
+    <color name="md_theme_dark_onBackground">#FFFAF5FF</color>
+    <color name="md_theme_dark_surface">#FF0D0612</color>
+    <color name="md_theme_dark_onSurface">#FFFAF5FF</color>
+    <color name="md_theme_dark_surfaceVariant">#FF1A1025</color>
+    <color name="md_theme_dark_onSurfaceVariant">#FFE8DEF8</color>
+    <color name="md_theme_dark_outline">#FF9B5DE5</color>
+    <color name="md_theme_dark_outlineVariant">#FF6B35B8</color>
     <color name="md_theme_dark_scrim">#FF000000</color>
-    <color name="md_theme_dark_inverseSurface">#FFE8ECF0</color>
-    <color name="md_theme_dark_inverseOnSurface">#FF1A252F</color>
-    <color name="md_theme_dark_inversePrimary">#FF2C3E50</color>
+    <color name="md_theme_dark_inverseSurface">#FFFAF5FF</color>
+    <color name="md_theme_dark_inverseOnSurface">#FF1A1025</color>
+    <color name="md_theme_dark_inversePrimary">#FF6B35B8</color>
     
     <!-- Transparency levels -->
     <color name="transparent_30">#4D000000</color>

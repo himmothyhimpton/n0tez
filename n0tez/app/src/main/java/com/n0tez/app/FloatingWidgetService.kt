@@ -8,7 +8,9 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
@@ -22,6 +24,7 @@ import androidx.core.app.NotificationCompat
 import com.n0tez.app.data.Note
 import com.n0tez.app.data.NoteRepository
 import kotlinx.coroutines.*
+import java.util.concurrent.atomic.AtomicBoolean
 
 class FloatingWidgetService : Service() {
     
@@ -31,13 +34,17 @@ class FloatingWidgetService : Service() {
     private var bubbleParams: WindowManager.LayoutParams? = null
     private var notepadParams: WindowManager.LayoutParams? = null
     
-    private var isNotepadExpanded = false
+    // Use atomic boolean for thread-safe state management
+    private val isNotepadExpanded = AtomicBoolean(false)
+    private val isTransitioning = AtomicBoolean(false)
+    
     private var transparencyLevel: Int = 20 // 0-100, lower = more transparent
     private var currentNote: Note? = null
     
     private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private lateinit var noteRepository: NoteRepository
     private var autoSaveJob: Job? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
     
     companion object {
         private const val NOTIFICATION_ID = 1001
@@ -50,7 +57,7 @@ class FloatingWidgetService : Service() {
         noteRepository = NoteRepository(this)
         
         // Load saved transparency level
-        transparencyLevel = getSharedPreferences("building_block_prefs", MODE_PRIVATE)
+        transparencyLevel = getSharedPreferences("faceshot_buildingblock_prefs", MODE_PRIVATE)
             .getInt("widget_transparency", 20)
         
         // Start as foreground service
@@ -76,7 +83,7 @@ class FloatingWidgetService : Service() {
         )
         
         val notification = NotificationCompat.Builder(this, N0tezApplication.CHANNEL_ID)
-            .setContentTitle("Building-Block Active")
+            .setContentTitle("FaceShot-BuildingBlock Active")
             .setContentText("Tap to open app, or use floating bubble")
             .setSmallIcon(R.drawable.ic_notification)
             .setContentIntent(openPendingIntent)
@@ -89,30 +96,35 @@ class FloatingWidgetService : Service() {
     }
     
     private fun createFloatingBubble() {
-        val inflater = LayoutInflater.from(this)
-        floatingBubbleView = inflater.inflate(R.layout.floating_bubble, null)
-        
-        val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-        } else {
-            @Suppress("DEPRECATION")
-            WindowManager.LayoutParams.TYPE_PHONE
+        try {
+            val inflater = LayoutInflater.from(this)
+            floatingBubbleView = inflater.inflate(R.layout.floating_bubble, null)
+            
+            val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+            } else {
+                @Suppress("DEPRECATION")
+                WindowManager.LayoutParams.TYPE_PHONE
+            }
+            
+            bubbleParams = WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                layoutType,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT
+            ).apply {
+                gravity = Gravity.TOP or Gravity.START
+                x = 50
+                y = 200
+            }
+            
+            setupBubbleDragAndTap()
+            windowManager.addView(floatingBubbleView, bubbleParams)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            android.widget.Toast.makeText(this, "Failed to create bubble: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
         }
-        
-        bubbleParams = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            layoutType,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-            PixelFormat.TRANSLUCENT
-        ).apply {
-            gravity = Gravity.TOP or Gravity.START
-            x = 50
-            y = 200
-        }
-        
-        setupBubbleDragAndTap()
-        windowManager.addView(floatingBubbleView, bubbleParams)
     }
     
     private fun setupBubbleDragAndTap() {
@@ -144,13 +156,17 @@ class FloatingWidgetService : Service() {
                     if (isDragging) {
                         bubbleParams?.x = initialX + deltaX.toInt()
                         bubbleParams?.y = initialY + deltaY.toInt()
-                        windowManager.updateViewLayout(floatingBubbleView, bubbleParams)
+                        try {
+                            windowManager.updateViewLayout(floatingBubbleView, bubbleParams)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
                     }
                     true
                 }
                 MotionEvent.ACTION_UP -> {
                     if (!isDragging) {
-                        // It's a tap - toggle notepad
+                        // It's a tap - toggle notepad (thread-safe)
                         toggleNotepad()
                     }
                     true
@@ -161,38 +177,34 @@ class FloatingWidgetService : Service() {
     }
     
     private fun toggleNotepad() {
-        if (isNotepadExpanded && floatingNotepadView != null) {
-            closeNotepad()
-        } else if (!isNotepadExpanded && floatingNotepadView == null) {
-            openNotepad()
-        } else {
-            // Reset inconsistent state
-            cleanupNotepadState()
-            // Then open fresh
-            openNotepad()
+        // Prevent rapid toggling - use atomic check-and-set
+        if (!isTransitioning.compareAndSet(false, true)) {
+            return // Already transitioning, ignore
         }
-    }
-    
-    private fun cleanupNotepadState() {
-        floatingNotepadView?.let {
+        
+        mainHandler.post {
             try {
-                windowManager.removeView(it)
-            } catch (e: Exception) { }
+                if (isNotepadExpanded.get()) {
+                    closeNotepadInternal()
+                } else {
+                    openNotepadInternal()
+                }
+            } finally {
+                // Allow next transition after a short delay to prevent spam
+                mainHandler.postDelayed({
+                    isTransitioning.set(false)
+                }, 300)
+            }
         }
-        floatingNotepadView = null
-        isNotepadExpanded = false
-        notepadParams = null
     }
     
-    private fun openNotepad() {
-        // Double-check state is clean before opening
-        if (floatingNotepadView != null) {
-            cleanupNotepadState()
-        }
+    private fun openNotepadInternal() {
+        // Clean up any existing notepad view first
+        cleanupNotepadViewSafely()
         
         try {
             val inflater = LayoutInflater.from(this)
-            floatingNotepadView = inflater.inflate(R.layout.floating_notepad, null)
+            val newNotepadView = inflater.inflate(R.layout.floating_notepad, null)
             
             val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
@@ -201,7 +213,7 @@ class FloatingWidgetService : Service() {
                 WindowManager.LayoutParams.TYPE_PHONE
             }
             
-            notepadParams = WindowManager.LayoutParams(
+            val newParams = WindowManager.LayoutParams(
                 dpToPx(320),
                 dpToPx(400),
                 layoutType,
@@ -215,161 +227,199 @@ class FloatingWidgetService : Service() {
                 softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
             }
             
-            windowManager.addView(floatingNotepadView, notepadParams)
+            // Add view to window manager
+            windowManager.addView(newNotepadView, newParams)
+            
+            // Only set state after successful add
+            floatingNotepadView = newNotepadView
+            notepadParams = newParams
+            isNotepadExpanded.set(true)
+            
+            // Setup UI after view is added
             setupNotepadUI()
-            isNotepadExpanded = true
             
             // Update bubble appearance
             floatingBubbleView?.findViewById<View>(R.id.bubble_icon)?.alpha = 0.5f
+            
         } catch (e: Exception) {
             e.printStackTrace()
             android.widget.Toast.makeText(this, "Failed to open notepad: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
             // Clean up on failure
-            cleanupNotepadState()
+            cleanupNotepadViewSafely()
         }
     }
     
-    private fun setupNotepadUI() {
-        floatingNotepadView?.apply {
+    private fun cleanupNotepadViewSafely() {
+        floatingNotepadView?.let { view ->
             try {
-                val editText = findViewById<EditText>(R.id.notepad_edit_text) ?: return
-                val transparencySeekBar = findViewById<SeekBar>(R.id.transparency_seekbar) ?: return
-                val btnClose = findViewById<ImageButton>(R.id.btn_close_notepad) ?: return
-                val btnSave = findViewById<ImageButton>(R.id.btn_save_note) ?: return
-                val btnPin = findViewById<ImageButton>(R.id.btn_pin_note) ?: return
-                val btnNew = findViewById<ImageButton>(R.id.btn_new_note) ?: return
-                val btnDelete = findViewById<ImageButton>(R.id.btn_delete_note) ?: return
-                val btnShred = findViewById<ImageButton>(R.id.btn_shred_note) ?: return
-                val headerBar = findViewById<View>(R.id.header_bar) ?: return
-                val transparencyLabel = findViewById<TextView>(R.id.transparency_label) ?: return
-                
-                // Set initial transparency (only backdrop is transparent)
-                updateTransparency(transparencyLevel)
-                transparencySeekBar.progress = transparencyLevel
-                transparencyLabel.text = "${100 - transparencyLevel}%"
-                
-                // Load current note or create new
-                try {
-                    currentNote = noteRepository.getCurrentNote() ?: Note()
-                } catch (e: Exception) {
-                    currentNote = Note()
+                // Try to hide keyboard first
+                view.findViewById<EditText>(R.id.notepad_edit_text)?.let { editText ->
+                    hideKeyboard(editText)
                 }
-                editText.setText(currentNote?.content ?: "")
-                updatePinButton(btnPin)
-                
-                // Setup transparency slider
-                transparencySeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                    override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                        transparencyLevel = progress
-                        updateTransparency(progress)
-                        transparencyLabel.text = "${100 - progress}%"
-                    }
-                    override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-                    override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                        // Save preference
-                        getSharedPreferences("building_block_prefs", MODE_PRIVATE)
-                            .edit()
-                            .putInt("widget_transparency", transparencyLevel)
-                            .apply()
-                    }
-                })
-                
-                // Setup text change listener for auto-save
-                editText.addTextChangedListener(object : TextWatcher {
-                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-                    override fun afterTextChanged(s: Editable?) {
-                        autoSaveJob?.cancel()
-                        autoSaveJob = serviceScope.launch {
-                            delay(1500)
-                            saveCurrentNote()
-                        }
-                    }
-                })
-                
-                // Focus on edit text to show keyboard
-                editText.setOnClickListener {
-                    editText.requestFocus()
-                    showKeyboard(editText)
+            } catch (e: Exception) {
+                // Ignore keyboard errors
+            }
+            
+            try {
+                windowManager.removeView(view)
+            } catch (e: Exception) {
+                // View might not be attached
+            }
+        }
+        
+        // Reset state
+        floatingNotepadView = null
+        notepadParams = null
+        isNotepadExpanded.set(false)
+    }
+    
+    private fun setupNotepadUI() {
+        val notepadView = floatingNotepadView ?: return
+        
+        try {
+            val editText = notepadView.findViewById<EditText>(R.id.notepad_edit_text)
+            val transparencySeekBar = notepadView.findViewById<SeekBar>(R.id.transparency_seekbar)
+            val btnClose = notepadView.findViewById<ImageButton>(R.id.btn_close_notepad)
+            val btnSave = notepadView.findViewById<ImageButton>(R.id.btn_save_note)
+            val btnPin = notepadView.findViewById<ImageButton>(R.id.btn_pin_note)
+            val btnNew = notepadView.findViewById<ImageButton>(R.id.btn_new_note)
+            val btnDelete = notepadView.findViewById<ImageButton>(R.id.btn_delete_note)
+            val btnShred = notepadView.findViewById<ImageButton>(R.id.btn_shred_note)
+            val headerBar = notepadView.findViewById<View>(R.id.header_bar)
+            val transparencyLabel = notepadView.findViewById<TextView>(R.id.transparency_label)
+            
+            // Check all views are found
+            if (editText == null || transparencySeekBar == null || btnClose == null || 
+                btnSave == null || btnPin == null || btnNew == null || 
+                btnDelete == null || btnShred == null || headerBar == null || 
+                transparencyLabel == null) {
+                android.widget.Toast.makeText(this, "Error: Missing UI elements", android.widget.Toast.LENGTH_SHORT).show()
+                return
+            }
+            
+            // Set initial transparency
+            updateTransparency(transparencyLevel)
+            transparencySeekBar.progress = transparencyLevel
+            transparencyLabel.text = "${100 - transparencyLevel}%"
+            
+            // Load current note or create new
+            currentNote = try {
+                noteRepository.getCurrentNote() ?: Note()
+            } catch (e: Exception) {
+                Note()
+            }
+            editText.setText(currentNote?.content ?: "")
+            updatePinButton(btnPin)
+            
+            // Setup transparency slider
+            transparencySeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    transparencyLevel = progress
+                    updateTransparency(progress)
+                    transparencyLabel.text = "${100 - progress}%"
                 }
-                
-                // Close button
-                btnClose.setOnClickListener {
-                    saveCurrentNote()
-                    closeNotepad()
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                    // Save preference
+                    getSharedPreferences("faceshot_buildingblock_prefs", MODE_PRIVATE)
+                        .edit()
+                        .putInt("widget_transparency", transparencyLevel)
+                        .apply()
                 }
-                
-                // Save button
-                btnSave.setOnClickListener {
-                    saveCurrentNote()
-                    android.widget.Toast.makeText(this@FloatingWidgetService, "Note saved", android.widget.Toast.LENGTH_SHORT).show()
-                }
-                
-                // Pin button
-                btnPin.setOnClickListener {
-                    currentNote?.let { note ->
-                        note.isPinned = !note.isPinned
+            })
+            
+            // Setup text change listener for auto-save
+            editText.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: Editable?) {
+                    autoSaveJob?.cancel()
+                    autoSaveJob = serviceScope.launch {
+                        delay(1500)
                         saveCurrentNote()
-                        updatePinButton(btnPin)
-                        val msg = if (note.isPinned) "Note pinned" else "Note unpinned"
-                        android.widget.Toast.makeText(this@FloatingWidgetService, msg, android.widget.Toast.LENGTH_SHORT).show()
                     }
                 }
-                
-                // New note button
-                btnNew.setOnClickListener {
+            })
+            
+            // Focus on edit text to show keyboard
+            editText.setOnClickListener {
+                editText.requestFocus()
+                showKeyboard(editText)
+            }
+            
+            // Close button
+            btnClose.setOnClickListener {
+                saveCurrentNote()
+                toggleNotepad()
+            }
+            
+            // Save button
+            btnSave.setOnClickListener {
+                saveCurrentNote()
+                android.widget.Toast.makeText(this@FloatingWidgetService, "Note saved", android.widget.Toast.LENGTH_SHORT).show()
+            }
+            
+            // Pin button
+            btnPin.setOnClickListener {
+                currentNote?.let { note ->
+                    note.isPinned = !note.isPinned
                     saveCurrentNote()
+                    updatePinButton(btnPin)
+                    val msg = if (note.isPinned) "Note pinned" else "Note unpinned"
+                    android.widget.Toast.makeText(this@FloatingWidgetService, msg, android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
+            
+            // New note button
+            btnNew.setOnClickListener {
+                saveCurrentNote()
+                currentNote = Note()
+                editText.setText("")
+                noteRepository.setCurrentNote(currentNote)
+                updatePinButton(btnPin)
+            }
+            
+            // Delete button
+            btnDelete.setOnClickListener {
+                currentNote?.let { note ->
+                    noteRepository.deleteNote(note.id)
+                    android.widget.Toast.makeText(this@FloatingWidgetService, "Note deleted", android.widget.Toast.LENGTH_SHORT).show()
                     currentNote = Note()
                     editText.setText("")
                     noteRepository.setCurrentNote(currentNote)
                     updatePinButton(btnPin)
                 }
-                
-                // Delete button
-                btnDelete.setOnClickListener {
-                    currentNote?.let { note ->
-                        noteRepository.deleteNote(note.id)
-                        android.widget.Toast.makeText(this@FloatingWidgetService, "Note deleted", android.widget.Toast.LENGTH_SHORT).show()
-                        currentNote = Note()
-                        editText.setText("")
-                        noteRepository.setCurrentNote(currentNote)
-                        updatePinButton(btnPin)
-                    }
-                }
-                
-                // Shred button (secure delete)
-                btnShred.setOnClickListener {
-                    currentNote?.let { note ->
-                        noteRepository.shredNote(note.id)
-                        android.widget.Toast.makeText(this@FloatingWidgetService, "Note securely shredded", android.widget.Toast.LENGTH_SHORT).show()
-                        currentNote = Note()
-                        editText.setText("")
-                        noteRepository.setCurrentNote(currentNote)
-                        updatePinButton(btnPin)
-                    }
-                }
-                
-                // Setup drag for header bar
-                setupNotepadDrag(headerBar)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                android.widget.Toast.makeText(this@FloatingWidgetService, "UI setup error: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
             }
+            
+            // Shred button (secure delete)
+            btnShred.setOnClickListener {
+                currentNote?.let { note ->
+                    noteRepository.shredNote(note.id)
+                    android.widget.Toast.makeText(this@FloatingWidgetService, "Note securely shredded", android.widget.Toast.LENGTH_SHORT).show()
+                    currentNote = Note()
+                    editText.setText("")
+                    noteRepository.setCurrentNote(currentNote)
+                    updatePinButton(btnPin)
+                }
+            }
+            
+            // Setup drag for header bar
+            setupNotepadDrag(headerBar)
+            
+        } catch (e: Exception) {
+            e.printStackTrace()
+            android.widget.Toast.makeText(this@FloatingWidgetService, "UI setup error: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
         }
     }
     
     private fun updateTransparency(level: Int) {
         floatingNotepadView?.apply {
-            val notepadContainer = findViewById<View>(R.id.notepad_container)
             val editTextBackground = findViewById<View>(R.id.edit_text_background)
             
             // Only the backdrop/background is transparent
             // level: 0 = fully transparent, 100 = opaque
             val alpha = level / 100f
             editTextBackground?.alpha = alpha
-            
-            // Keep border and controls fully visible
-            // The notepadContainer handles the border which stays solid
         }
     }
     
@@ -398,7 +448,13 @@ class FloatingWidgetService : Service() {
                 MotionEvent.ACTION_MOVE -> {
                     notepadParams?.x = initialX + (event.rawX - initialTouchX).toInt()
                     notepadParams?.y = initialY + (event.rawY - initialTouchY).toInt()
-                    windowManager.updateViewLayout(floatingNotepadView, notepadParams)
+                    try {
+                        floatingNotepadView?.let { view ->
+                            windowManager.updateViewLayout(view, notepadParams)
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                     true
                 }
                 else -> false
@@ -407,46 +463,29 @@ class FloatingWidgetService : Service() {
     }
     
     private fun saveCurrentNote() {
-        floatingNotepadView?.findViewById<EditText>(R.id.notepad_edit_text)?.let { editText ->
-            currentNote?.content = editText.text.toString()
-            currentNote?.let { note ->
-                if (note.content.isNotBlank()) {
-                    noteRepository.saveNote(note)
-                    noteRepository.setCurrentNote(note)
+        try {
+            floatingNotepadView?.findViewById<EditText>(R.id.notepad_edit_text)?.let { editText ->
+                currentNote?.content = editText.text.toString()
+                currentNote?.let { note ->
+                    if (note.content.isNotBlank()) {
+                        noteRepository.saveNote(note)
+                        noteRepository.setCurrentNote(note)
+                    }
                 }
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
     
-    private fun closeNotepad() {
+    private fun closeNotepadInternal() {
         try {
             saveCurrentNote()
         } catch (e: Exception) {
             e.printStackTrace()
         }
         
-        floatingNotepadView?.let {
-            try {
-                // Hide keyboard first
-                val editText = it.findViewById<EditText>(R.id.notepad_edit_text)
-                if (editText != null) {
-                    hideKeyboard(editText)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            
-            try {
-                windowManager.removeView(it)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-        
-        // Always reset state
-        floatingNotepadView = null
-        isNotepadExpanded = false
-        notepadParams = null
+        cleanupNotepadViewSafely()
         
         // Restore bubble appearance
         try {
@@ -495,6 +534,10 @@ class FloatingWidgetService : Service() {
                 windowManager.removeView(it)
             } catch (e: Exception) { }
         }
+        
+        floatingNotepadView = null
+        floatingBubbleView = null
+        isNotepadExpanded.set(false)
     }
     
     override fun onBind(intent: Intent?): IBinder? = null
