@@ -74,8 +74,7 @@ dependencies {
     implementation 'com.github.yalantis:ucrop:2.2.8'
     
     // Video/Audio processing with FFmpeg
-    // Using audio variant which is confirmed on Maven Central
-    implementation 'com.arthenica:ffmpeg-kit-audio:6.0-2'
+    implementation 'com.arthenica:ffmpeg-kit-full-gpl:6.0-2.LTS'
     
     // Testing
     testImplementation 'junit:junit:4.13.2'
