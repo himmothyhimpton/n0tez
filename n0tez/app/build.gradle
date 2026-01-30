@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace 'com.faceshot.buildingblock'
+    namespace 'com.n0tez.app'
     compileSdk 34
 
     defaultConfig {
