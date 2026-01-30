@@ -15,10 +15,10 @@ import android.util.Base64
 class NoteRepository(private val context: Context) {
     
     companion object {
-        private const val PREFS_NAME = "building_block_notes"
+        private const val PREFS_NAME = "faceshot_buildingblock_notes"
         private const val KEY_NOTES = "notes_list"
         private const val KEY_CURRENT_NOTE = "current_note"
-        private const val SHRED_PREFS_NAME = "building_block_shred"
+        private const val SHRED_PREFS_NAME = "faceshot_buildingblock_shred"
     }
     
     private val sharedPrefs: SharedPreferences by lazy {
