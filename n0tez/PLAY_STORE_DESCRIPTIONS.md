@@ -1,105 +1,105 @@
-# n0tez - Google Play Store Descriptions
+# FaceShot-BuildingBlock - Google Play Store Descriptions
 
 ## App Name
-n0tez - Transparent Notepad
+**FaceShot-BuildingBlock**
 
 ## Short Description (80 characters max)
-Transparent floating notepad - copy info from any app with see-through overlay
+Transparent notepad with floating widget - FaceShot companion tool for creators
 
 ## Full Description (4000 characters max)
 
-📝 **n0tez - The See-Through Notepad for Android**
+**FaceShot-BuildingBlock** is the ultimate transparent notepad companion app designed for creators and power users of FaceShot-ChopShop AI tools.
 
-Tired of switching between apps just to copy a phone number, password, or piece of text? n0tez solves this problem with a unique transparent floating notepad that overlays any app on your screen.
+📝 **TRANSPARENT FLOATING NOTEPAD**
+A floating notepad that sits on top of any app with an adjustable see-through background. Perfect for copying information from one app to another - no more switching back and forth!
 
-**How it works:**
-Simply tap the floating bubble icon, and a transparent notepad appears on top of whatever app you're using. The background of the notepad is see-through, so you can read the content underneath while typing. Perfect for copying information without switching apps!
+✨ **PERFECT FOR AI CREATORS**
+Designed as a companion tool for FaceShot-ChopShop (faceshot-chopshop-1.onrender.com):
+• Copy and paste AI prompts between apps
+• Store credit balances and transaction info
+• Save tool settings for quick reference
+• Keep track of media URLs and generation IDs
 
-💡 **Key Features:**
+🎯 **KEY FEATURES**
 
-• **Transparent Overlay** - The notepad background is see-through so you can view content underneath while typing
-• **Floating Bubble** - A small, draggable icon that can be positioned anywhere on your screen
-• **Adjustable Transparency** - Control exactly how transparent the notepad is (0-100%)
-• **Bright, Bold Text** - Your notes remain clearly visible even on transparent backgrounds
-• **Pin Important Notes** - Keep your most-used notes at the top
-• **Auto-Save** - Never lose your work - notes save automatically
+⬛ **Floating Widget**
+• Draggable bubble icon that stays on screen
+• Tap to expand into full notepad
+• Works over any app
+• Minimizes to small bubble when not in use
 
-🔒 **Privacy & Security:**
+⬛ **Adjustable Transparency**
+• Slider to control backdrop opacity (0-100%)
+• See content beneath while typing
+• Bright, bold text stays visible
+• Perfect for copying passwords, phone numbers, URLs
 
-• **PIN Protection** - Optional 4-digit PIN to protect your notes
-• **Secure Shred** - Permanently delete sensitive notes with military-grade secure deletion that overwrites data multiple times
-• **100% Offline** - All notes stored locally on your device
-• **No Account Required** - No sign-up, no cloud, no tracking
+⬛ **Note Management**
+• Create unlimited notes
+• Auto-save as you type
+• Pin important notes
+• Quick access to recent notes
 
-🎯 **Perfect For:**
+⬛ **Security First**
+• Optional 4-digit PIN protection
+• Encrypted PIN storage
+• Secure Shred feature - military-grade deletion
+• All data stored locally - no cloud, no accounts
 
-• Copying phone numbers from messages
-• Noting down passwords shown on screen
-• Taking quick notes while watching videos
-• Copying text from images or PDFs
-• Writing down information from any app
+⬛ **Material Design 3**
+• Modern purple/pink gradient theme
+• Beautiful FaceShot branding
+• Smooth animations
+• Dark mode optimized
 
-🎨 **Beautiful Design:**
+🔒 **PRIVACY FOCUSED**
+• No account required
+• No data collection
+• No internet required for note features
+• All notes stay on your device
 
-• Material Design 3 interface
-• Clean, modern look
-• Dark and light theme support
-• Customizable colors
+📱 **USE CASES**
+• Copy passwords while logging into apps
+• Note down phone numbers from websites
+• Store AI prompt templates
+• Quick reference for frequently used info
+• Copy URLs and IDs between apps
 
-🚀 **Easy to Use:**
+🎨 **PART OF THE FACESHOT ECOSYSTEM**
+FaceShot-BuildingBlock is designed to complement the FaceShot-ChopShop platform:
+• Website: faceshot-chopshop-1.onrender.com
+• Telegram Channel: @FaceSwapVideoAi
+• Mini App for quick mobile access
 
-1. Tap "Start Floating Widget"
-2. Grant overlay permission when asked
-3. Tap the floating bubble to open notepad
-4. Type your notes - background is transparent!
-5. Close when done - notes auto-save
-
-Download n0tez today and never switch between apps just to copy information again!
+Download now and experience the most convenient way to copy information between apps!
 
 ---
 
 ## Feature Graphic Text
-See Through. Write Down. Stay Focused.
-
-## Screenshots Captions
-
-1. Main screen - "Launch your transparent notepad"
-2. Floating bubble - "Draggable bubble icon goes anywhere"
-3. Transparent notepad - "See through the background while typing"
-4. Transparency slider - "Adjust transparency to your preference"
-5. Notes list - "Organize and manage your notes"
-6. PIN lock - "Protect your notes with PIN security"
-7. Shred feature - "Securely delete sensitive notes"
-8. Settings - "Customize your experience"
+"FaceShot-BuildingBlock - Transparent Notepad Overlay"
 
 ## Category
 Productivity
 
-## Tags/Keywords
-notepad, notes, floating widget, transparent, overlay, copy text, see through, productivity, security, privacy, quick notes
+## Tags
+notepad, transparent, overlay, floating widget, notes, copy paste, productivity, AI tools, FaceShot
 
 ## Content Rating
 Everyone
 
-## Permissions Explanation
+## Contact Email
+(Add your contact email)
 
-**Display over other apps (SYSTEM_ALERT_WINDOW)**
-This permission is required for the core functionality of the app - the floating transparent notepad needs to appear on top of other apps so you can see through it while typing.
+## Privacy Policy URL
+(Required - add your privacy policy URL)
 
-**Notifications**
-Used to show a notification when the floating widget is active, allowing you to easily stop it or return to the main app.
+## Screenshots Descriptions
 
----
-
-## Privacy Policy Notes
-
-For Google Play, you'll need a privacy policy URL. Here's what to include:
-
-- App stores all data locally on the device
-- No data is collected or transmitted to servers
-- No analytics or tracking
-- No third-party services
-- PIN codes are encrypted using Android Security library
-- Shred feature securely overwrites data before deletion
-
-You can host a simple privacy policy on GitHub Pages or any free website hosting.
+1. **Main Screen**: FaceShot-BuildingBlock main menu with purple gradient theme
+2. **Floating Widget**: Draggable bubble icon floating over another app
+3. **Transparent Notepad**: Expanded notepad with see-through background
+4. **Transparency Slider**: Adjusting backdrop opacity with slider
+5. **Note Editor**: Full-screen note editing with all features
+6. **PIN Security**: 4-digit PIN lock screen for protection
+7. **Notes List**: Managing and organizing saved notes
+8. **Settings**: App settings and customization options
