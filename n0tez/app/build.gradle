@@ -73,8 +73,8 @@ dependencies {
     // Image Cropping
     implementation 'com.github.yalantis:ucrop:2.2.8'
     
-    // Video/Audio processing with FFmpeg (via JitPack)
-    implementation 'com.github.arthenica:ffmpeg-kit:v6.0-2'
+    // Video/Audio processing with FFmpeg (via JitPack - using LTS for broader compatibility)
+    implementation 'com.github.arthenica:ffmpeg-kit:v6.0.LTS'
     
     // Testing
     testImplementation 'junit:junit:4.13.2'
