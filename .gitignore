@@ -24,6 +24,7 @@ node_modules/
 /out/
 next-env.d.ts
 *.tsbuildinfo
+workspace_config.yaml
 
 # Production builds
 /build
