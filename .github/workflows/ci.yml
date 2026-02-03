@@ -32,11 +32,13 @@ jobs:
 
       - name: Build
         run: yarn build
-      - name: Archive build
+      - name: Archive frontend build
+        run: zip -r frontend-build.zip build
+      - name: Upload frontend artifact
         uses: actions/upload-artifact@v4
         with:
           name: frontend-build
-          path: frontend/build
+          path: frontend-build.zip
 
   backend:
     name: Backend tests
