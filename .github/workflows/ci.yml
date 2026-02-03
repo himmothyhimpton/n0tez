@@ -64,7 +64,7 @@ jobs:
       - name: Run tests
         run: pytest ../tests
       - name: Archive backend source
-        run: zip -r backend.zip backend/
+        run: zip -r backend.zip .
       - name: Upload backend source
         uses: actions/upload-artifact@v4
         with:
