@@ -32,6 +32,11 @@ jobs:
 
       - name: Build
         run: yarn build
+      - name: Archive build
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: frontend/build
 
   backend:
     name: Backend tests
@@ -56,3 +61,10 @@ jobs:
 
       - name: Run tests
         run: pytest ../tests
+      - name: Archive backend source
+        run: zip -r backend.zip backend/
+      - name: Upload backend source
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-source
+          path: backend.zip
