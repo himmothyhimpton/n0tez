@@ -3,6 +3,7 @@
 # IDE and editors
 .idea/
 .vscode/
+*.code-workspace
 
 # Dependencies
 node_modules/
