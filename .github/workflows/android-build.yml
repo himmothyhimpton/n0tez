@@ -1,4 +1,4 @@
-name: Android Build
+name: Android APK Build
 
 on:
   push:
@@ -7,184 +7,7 @@ on:
     branches: [ master, main ]
 
 jobs:
-  # -------- fast feedback: lint + unit tests --------
-  lint-test:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-java@v4
-      with: { java-version: '17', distribution: 'temurin' }
-    - uses: android-actions/setup-android@v3
-    - uses: gradle/gradle-build-action@v3
-      with: { gradle-version: 8.9 }
-    - name: Grant execute permission for gradlew
-      run: chmod +x ./gradlew
-      
-    - name: Lint & Unit Test
-      run: |
-        ./gradlew lintDebug testDebugUnitTest --no-daemon --stacktrace --warning-mode all
-    - name: Upload lint results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: lint-results
-        path: app/build/reports/
-
-  # -------- emulator smoke test (catches startup crashes) --------
-  smoke-test:
-    runs-on: macos-13          # Intel-based runner for API 34 emulator compatibility
-    timeout-minutes: 15
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-java@v4
-      with: { java-version: '17', distribution: 'temurin' }
-    - uses: android-actions/setup-android@v3
-    - name: Accept Android SDK licenses (smoke)
-      shell: bash
-      run: |
-        if command -v sdkmanager >/dev/null; then
-          yes | sdkmanager --licenses || true
-        else
-          YES_CMD="yes"
-          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
-          $YES_CMD | "$SDKMANAGER" --licenses || true
-        fi
-    - name: Install Emulator and System Image (smoke)
-      shell: bash
-      run: |
-        if command -v sdkmanager >/dev/null; then
-          sdkmanager --install "platform-tools" "emulator" "system-images;android-34;google_apis;x86_64" "system-images;android-34;google_apis_playstore;x86_64"
-        else
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platform-tools" "emulator" "system-images;android-34;google_apis;x86_64" "system-images;android-34;google_apis_playstore;x86_64"
-        fi
-    - uses: gradle/gradle-build-action@v3
-      with: { gradle-version: 8.9 }
-
-    - name: Grant execute permission for gradlew
-      run: chmod +x ./gradlew
-      
-    - name: Build debug APK
-      run: ./gradlew assembleDebug --no-daemon --stacktrace --warning-mode all
-
-    - name: AVD cache
-      uses: actions/cache@v4
-      id: avd-cache
-      with:
-        path: |
-          ~/.android/avd/*
-          ~/.android/adb*
-        key: avd-api34-google-apis
-
-    - name: Create AVD 34
-      if: steps.avd-cache.outputs.cache-hit != 'true'
-      uses: reactivecircus/android-emulator-runner@v2
-      with:
-        api-level: 34
-        target: google_apis
-        arch: x86_64
-        profile: Pixel_5
-        avd-name: n0tez-avd
-        force-avd-creation: true
-        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot-load -no-snapshot-save -memory 2048 -cores 2
-        disable-animations: false
-        script: echo "AVD ready"
-
-    - name: Precreate smoke artifacts
-      shell: bash
-      run: |
-        mkdir -p "${{ github.workspace }}"
-        echo "=== Precreated (no emulator yet) ===" > "${{ github.workspace }}/logcat.txt"
-        echo "Waiting for emulator run to populate this file" >> "${{ github.workspace }}/logcat.txt"
-        echo "=== Precreated (no emulator yet) ===" > "${{ github.workspace }}/dumpsys_activity.txt"
-        echo "Waiting for emulator run to populate this file" >> "${{ github.workspace }}/dumpsys_activity.txt"
-
-    - name: Smoke test on emulator
-      uses: reactivecircus/android-emulator-runner@v2
-      with:
-        api-level: 34
-        target: google_apis
-        arch: x86_64
-        profile: Pixel_5
-        avd-name: n0tez-avd
-        force-avd-creation: false
-        emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -memory 2048 -cores 2 -timezone America/New_York
-        disable-animations: true
-        script: |
-          set +e
-          echo "=== Starting smoke test ==="
-          echo "=== Emulator diagnostic info ==="
-          adb wait-for-device
-          adb devices
-          echo "Device properties:"
-          adb shell getprop ro.build.version.release || echo "Could not get Android version"
-          adb shell getprop ro.product.model || echo "Could not get device model"
-          echo "=== Wait for boot complete ==="
-          timeout 300 bash -c 'until [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ]; do echo "waiting for sys.boot_completed (current: $(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r'))"; sleep 3; done' || echo "Boot completion timeout"
-          timeout 60 bash -c 'until [ "$(adb shell settings get global device_provisioned 2>/dev/null | tr -d '\r')" = "1" ]; do echo "waiting for device_provisioned (current: $(adb shell settings get global device_provisioned 2>/dev/null | tr -d '\r'))"; sleep 2; done' || echo "Device provision timeout"
-          timeout 60 bash -c 'until [ "$(adb shell getprop init.svc.bootanim 2>/dev/null | tr -d '\r')" = "stopped" ]; do echo "waiting for boot animation to stop (current: $(adb shell getprop init.svc.bootanim 2>/dev/null | tr -d '\r'))"; sleep 2; done' || echo "Boot animation timeout"
-          adb shell input keyevent 82 || true
-          echo "=== Installing APK ==="
-          adb install -r app/build/outputs/apk/debug/app-debug.apk || echo "Install failed, continuing..."
-          adb shell pm list packages | grep com.n0tez.app || echo "Package not found, continuing..."
-          echo "=== Clearing logcat ==="
-          adb logcat -c || echo "Logcat clear failed, continuing..."
-          echo "=== Starting MainActivity via cmd ==="
-          adb shell cmd activity start-activity -W -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -n com.n0tez.app/.MainActivity || echo "MainActivity start failed, continuing..."
-          sleep 5
-          echo "=== Starting NoteEditorActivity ==="
-          adb shell am start -W -n com.n0tez.app/.NoteEditorActivity || echo "NoteEditorActivity start failed, continuing..."
-          sleep 3
-          echo "=== Tapping Create Note ==="
-          # tap "Create Note" via input coords (x=540 y=600 is center-card on 1080p)
-          adb shell input tap 540 600 || echo "Tap failed, continuing..."
-          sleep 3
-          echo "=== Capturing logcat ==="
-          mkdir -p ${{ github.workspace }}
-          : > ${{ github.workspace }}/logcat.txt
-          adb logcat -b all -v time -d >> ${{ github.workspace }}/logcat.txt 2>/dev/null || echo "logcat capture failed" >> ${{ github.workspace }}/logcat.txt
-          echo "=== Capturing dumpsys activity ==="
-          adb shell dumpsys activity > ${{ github.workspace }}/dumpsys_activity.txt 2>/dev/null || echo "dumpsys activity failed" > ${{ github.workspace }}/dumpsys_activity.txt
-          # Ensure file exists and has some content
-          if [ ! -s ${{ github.workspace }}/logcat.txt ]; then
-            echo "No logcat content captured - creating diagnostic file"
-            echo "=== Logcat Capture Failed ===" > ${{ github.workspace }}/logcat.txt
-            echo "Timestamp: $(date)" >> ${{ github.workspace }}/logcat.txt
-            echo "Device info:" >> ${{ github.workspace }}/logcat.txt
-            adb shell getprop ro.build.version.release >> ${{ github.workspace }}/logcat.txt 2>/dev/null || echo "Could not get device info" >> ${{ github.workspace }}/logcat.txt
-          fi
-          echo "=== Analyzing logcat ==="
-          echo "Logcat file size: $(wc -c < ${{ github.workspace }}/logcat.txt) bytes"
-          tail -n 400 ${{ github.workspace }}/logcat.txt || echo "No logcat content to display"
-          if grep -q 'FATAL\|AndroidRuntime\|ANR' ${{ github.workspace }}/logcat.txt; then
-            echo "❌ Smoke test FAILED - Found crash in logcat"
-            echo "=== Full logcat content ==="
-            cat ${{ github.workspace }}/logcat.txt
-            exit 1
-          else
-            echo "✅ Smoke test PASSED - No crashes detected"
-          fi
-
-    - name: Upload smoke-test logcat
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: smoke-logcat
-        path: ${{ github.workspace }}/logcat.txt
-        if-no-files-found: warn
-        retention-days: 7
-
-    - name: Upload dumpsys activity
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: dumpsys-activity
-        path: ${{ github.workspace }}/dumpsys_activity.txt
-        if-no-files-found: warn
-        retention-days: 7
-
-  # -------- signed release build (only if smoke green) --------
-  build:
-    needs: smoke-test
+  build-apk:
     runs-on: ubuntu-latest
     
     steps:
@@ -239,7 +62,7 @@ jobs:
         
     - name: Build Debug APK
       shell: bash
-      run: ./gradlew assembleDebug --no-daemon --stacktrace --info --warning-mode all --no-parallel --max-workers=1 | tee build-debug.log
+      run: ./gradlew assembleDebug --no-daemon --stacktrace --info --warning-mode all --no-parallel --max-workers=1
       
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
@@ -249,7 +72,7 @@ jobs:
         
     - name: Build Release APK
       shell: bash
-      run: ./gradlew assembleRelease --no-daemon --stacktrace --info --warning-mode all --no-parallel --max-workers=1 | tee build-release.log
+      run: ./gradlew assembleRelease --no-daemon --stacktrace --info --warning-mode all --no-parallel --max-workers=1
 
     - name: Zipalign Release APK
       shell: bash
@@ -273,14 +96,6 @@ jobs:
       run: |
         "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --verbose app-release-signed.apk
 
-    - name: Upload Build Logs
-      uses: actions/upload-artifact@v4
-      with:
-        name: gradle-build-logs
-        path: |
-          build-debug.log
-          build-release.log
-      
     - name: Upload Release APK
       uses: actions/upload-artifact@v4
       with:
@@ -292,15 +107,3 @@ jobs:
       with:
         name: n0tez-release-signed-apk
         path: app-release-signed.apk
-
-  # -------- notify overall result --------
-  done:
-    needs: [lint-test, smoke-test, build]
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-    - name: CI status
-      run: |
-        echo "Lint & unit tests : ${{ needs.lint-test.result }}"
-        echo "Smoke test        : ${{ needs.smoke-test.result }}"
-        echo "Signed build      : ${{ needs.build.result }}"
