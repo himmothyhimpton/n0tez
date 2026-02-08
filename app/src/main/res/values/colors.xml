@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- Material Design 3 colors -->
+    <color name="md_theme_primary">#FF6200EE</color>
+    <color name="md_theme_onPrimary">#FFFFFFFF</color>
+    <color name="md_theme_primaryContainer">#FFEADDFF</color>
+    <color name="md_theme_onPrimaryContainer">#FF21005D</color>
+    <color name="md_theme_secondary">#FF625B71</color>
+    <color name="md_theme_onSecondary">#FFFFFFFF</color>
+    <color name="md_theme_secondaryContainer">#FFE8DEF8</color>
+    <color name="md_theme_onSecondaryContainer">#FF1D192B</color>
+    <color name="md_theme_tertiary">#FF7D5260</color>
+    <color name="md_theme_onTertiary">#FFFFFFFF</color>
+    <color name="md_theme_tertiaryContainer">#FFFFD8E4</color>
+    <color name="md_theme_onTertiaryContainer">#FF31111D</color>
+    <color name="md_theme_error">#FFB3261E</color>
+    <color name="md_theme_onError">#FFFFFFFF</color>
+    <color name="md_theme_errorContainer">#FFF9DEDC</color>
+    <color name="md_theme_onErrorContainer">#FF410E0B</color>
+    <color name="md_theme_background">#FFFFFBFE</color>
+    <color name="md_theme_onBackground">#FF1C1B1F</color>
+    <color name="md_theme_surface">#FFFFFBFE</color>
+    <color name="md_theme_onSurface">#FF1C1B1F</color>
+    <color name="md_theme_surfaceVariant">#FFE7E0EC</color>
+    <color name="md_theme_onSurfaceVariant">#FF49454F</color>
+    <color name="md_theme_outline">#FF79747E</color>
+    <color name="md_theme_outlineVariant">#FFCAC4D0</color>
+    <color name="md_theme_scrim">#FF000000</color>
+    <color name="md_theme_inverseSurface">#FF313033</color>
+    <color name="md_theme_inverseOnSurface">#FFF4EFF4</color>
+    <color name="md_theme_inversePrimary">#FFD0BCFF</color>
+    
+    <!-- Dark theme colors -->
+    <color name="md_theme_dark_primary">#FFD0BCFF</color>
+    <color name="md_theme_dark_onPrimary">#FF381E72</color>
+    <color name="md_theme_dark_primaryContainer">#FF4F378B</color>
+    <color name="md_theme_dark_onPrimaryContainer">#FFEADDFF</color>
+    <color name="md_theme_dark_secondary">#FFCCC2DC</color>
+    <color name="md_theme_dark_onSecondary">#FF332D41</color>
+    <color name="md_theme_dark_secondaryContainer">#FF4A4458</color>
+    <color name="md_theme_dark_onSecondaryContainer">#FFE8DEF8</color>
+    <color name="md_theme_dark_tertiary">#FFEFB8C8</color>
+    <color name="md_theme_dark_onTertiary">#FF492532</color>
+    <color name="md_theme_dark_tertiaryContainer">#FF633B48</color>
+    <color name="md_theme_dark_onTertiaryContainer">#FFFFD8E4</color>
+    <color name="md_theme_dark_error">#FFF2B8B5</color>
+    <color name="md_theme_dark_onError">#FF601410</color>
+    <color name="md_theme_dark_errorContainer">#FF8C1D18</color>
+    <color name="md_theme_dark_onErrorContainer">#FFF9DEDC</color>
+    <color name="md_theme_dark_background">#FF141218</color>
+    <color name="md_theme_dark_onBackground">#FFE6E0E9</color>
+    <color name="md_theme_dark_surface">#FF141218</color>
+    <color name="md_theme_dark_onSurface">#FFE6E0E9</color>
+    <color name="md_theme_dark_surfaceVariant">#FF49454F</color>
+    <color name="md_theme_dark_onSurfaceVariant">#FFCAC4D0</color>
+    <color name="md_theme_dark_outline">#FF938F99</color>
+    <color name="md_theme_dark_outlineVariant">#FF49454F</color>
+    <color name="md_theme_dark_scrim">#FF000000</color>
+    <color name="md_theme_dark_inverseSurface">#FFE6E0E9</color>
+    <color name="md_theme_dark_inverseOnSurface">#FF322F35</color>
+    <color name="md_theme_dark_inversePrimary">#FF6750A4</color>
+    
+    <!-- Transparency levels -->
+    <color name="transparent_30">#4D000000</color>
+    <color name="transparent_50">#80000000</color>
+    <color name="transparent_70">#B3000000</color>
+    <color name="transparent_90">#E6000000</color>
+    <color name="transparent_white_30">#4DFFFFFF</color>
+    <color name="transparent_white_50">#80FFFFFF</color>
+    <color name="transparent_white_70">#B3FFFFFF</color>
+    <color name="transparent_white_90">#E6FFFFFF</color>
+</resources>
