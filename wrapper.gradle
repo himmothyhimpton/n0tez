@@ -1,4 +1,0 @@
-task wrapper(type: Wrapper) {
-    gradleVersion = '8.2'
-    distributionType = Wrapper.DistributionType.BIN
-}
