@@ -12,6 +12,8 @@ import android.view.*
 import android.widget.EditText
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.n0tez.app.data.Note
+import com.n0tez.app.data.NoteRepository
 import com.n0tez.app.databinding.FloatingWidgetBinding
 import kotlinx.coroutines.*
 
@@ -20,6 +22,8 @@ class FloatingWidgetService : Service() {
     private lateinit var windowManager: WindowManager
     private lateinit var floatingView: View
     private lateinit var binding: FloatingWidgetBinding
+    private lateinit var noteRepository: NoteRepository
+    private var currentNote: Note? = null
     private var layoutParams: WindowManager.LayoutParams? = null
     private var transparencyLevel: Float = 0.7f
     private var currentNoteContent: String = ""
@@ -27,6 +31,7 @@ class FloatingWidgetService : Service() {
     
     override fun onCreate() {
         super.onCreate()
+        noteRepository = NoteRepository(this)
         try {
             createNotificationChannel()
             val notification = buildNotification()
@@ -145,6 +150,17 @@ class FloatingWidgetService : Service() {
                         saveCurrentNote()
                     }
                 }
+
+                // Load initial note
+                serviceScope.launch {
+                    withContext(Dispatchers.IO) {
+                        currentNote = noteRepository.getCurrentNote()
+                    }
+                    if (currentNote != null) {
+                        floatingEditText.setText(currentNote?.content ?: "")
+                        currentNoteContent = currentNote?.content ?: ""
+                    }
+                }
             }
         } catch (e: Exception) {
             android.util.Log.e("FloatingWidget", "setupWidgetUI error", e)
@@ -205,11 +221,25 @@ class FloatingWidgetService : Service() {
     }
     
     private suspend fun saveNoteToStorage(content: String) {
-        // Implementation for saving notes to local storage
         withContext(Dispatchers.IO) {
             try {
-                val sharedPrefs = getSharedPreferences("n0tez_prefs", MODE_PRIVATE)
-                sharedPrefs.edit().putString("current_note", content).apply()
+                if (currentNote == null) {
+                    val title = if (content.isNotBlank()) content.lines().first().take(20) else "Widget Note"
+                    currentNote = Note(title = title, content = content)
+                } else {
+                    currentNote?.apply {
+                        this.content = content
+                        this.updatedAt = System.currentTimeMillis()
+                        if (this.title.isBlank() || this.title == "Widget Note") {
+                            this.title = if (content.isNotBlank()) content.lines().first().take(20) else "Widget Note"
+                        }
+                    }
+                }
+                
+                currentNote?.let {
+                    noteRepository.saveNote(it)
+                    noteRepository.setCurrentNote(it)
+                }
             } catch (e: Exception) {
                 android.util.Log.e("FloatingWidget", "saveNoteToStorage error", e)
             }

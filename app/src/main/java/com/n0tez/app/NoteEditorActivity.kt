@@ -1,17 +1,21 @@
 package com.n0tez.app
 
-import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
+import android.os.Bundle
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
+import com.n0tez.app.data.Note
+import com.n0tez.app.data.NoteRepository
 import com.n0tez.app.databinding.ActivityNoteEditorBinding
 import kotlinx.coroutines.*
-import java.text.SimpleDateFormat
 import java.util.*
 
 class NoteEditorActivity : AppCompatActivity() {
     
     private lateinit var binding: ActivityNoteEditorBinding
+    private lateinit var noteRepository: NoteRepository
+    private var currentNote: Note? = null
     private var noteId: String? = null
     private var autoSaveJob: Job? = null
     private val autoSaveScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
@@ -21,120 +25,100 @@ class NoteEditorActivity : AppCompatActivity() {
         binding = ActivityNoteEditorBinding.inflate(layoutInflater)
         setContentView(binding.root)
         
+        noteRepository = NoteRepository(this)
+        noteId = intent.getStringExtra("NOTE_ID")
+        
         setupUI()
-        loadNoteIfExists()
+        loadNote()
         setupAutoSave()
     }
     
     private fun setupUI() {
-        try {
-            setSupportActionBar(binding.toolbar)
-            supportActionBar?.setDisplayHomeAsUpEnabled(true)
-            supportActionBar?.title = "New Note"
-            
-            binding.apply {
-                // Setup transparency slider
-                sliderTransparency.addOnChangeListener { _, value, _ ->
-                    val alpha = value / 100f
-                    noteContainer.alpha = alpha
-                    saveTransparencyPreference(value.toInt())
-                }
-                
-                // Setup text editor
-                noteEditText.setBackgroundColor(android.graphics.Color.TRANSPARENT)
-                noteEditText.setTextColor(android.graphics.Color.WHITE)
-                
-                // Setup save button
-                btnSave.setOnClickListener {
-                    saveNote()
-                }
-                
-                // Setup share button
-                btnShare.setOnClickListener {
-                    shareNote()
-                }
-                
-                // Setup copy button
-                btnCopy.setOnClickListener {
-                    copyNoteContent()
-                }
-                
-                // Setup paste button
-                btnPaste.setOnClickListener {
-                    pasteContent()
-                }
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = if (noteId == null) "New Note" else "Edit Note"
+        
+        binding.apply {
+            // Transparency
+            sliderTransparency.addOnChangeListener { _, value, _ ->
+                val alpha = value / 100f
+                noteContainer.alpha = alpha
+                saveTransparencyPreference(value.toInt())
             }
-        } catch (e: Exception) {
-            android.util.Log.e("NoteEditor", "setupUI error", e)
-            showMessage("UI setup failed: ${e.message}")
-        }
-    }
-    
-    private fun loadNoteIfExists() {
-        noteId = intent.getStringExtra("NOTE_ID")
-        noteId?.let { id ->
-            loadNote(id)
+            
+            // Buttons
+            btnSave.setOnClickListener { saveNote(finishAfter = true) }
+            btnShare.setOnClickListener { shareNote() }
+            btnCopy.setOnClickListener { copyNoteContent() }
+            btnPaste.setOnClickListener { pasteContent() }
+            
+            // Styling
+            noteEditText.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+            noteEditText.setTextColor(android.graphics.Color.WHITE)
         }
         
-        // Load saved transparency level
+        // Load transparency pref
         val savedTransparency = getSharedPreferences("n0tez_prefs", MODE_PRIVATE)
             .getInt("transparency_level", 70)
         binding.sliderTransparency.value = savedTransparency.toFloat()
         binding.noteContainer.alpha = savedTransparency / 100f
     }
     
-    private fun loadNote(noteId: String) {
-        // Load note from database
-        // This is a simplified implementation
-        val noteContent = getSharedPreferences("n0tez_prefs", MODE_PRIVATE)
-            .getString("note_$noteId", "")
-        
-        binding.noteEditText.setText(noteContent)
-        supportActionBar?.title = "Edit Note"
-    }
-    
-    private fun setupAutoSave() {
-        binding.noteEditText.addTextChangedListener { text ->
-            autoSaveJob?.cancel()
-            autoSaveJob = autoSaveScope.launch {
-                delay(2000) // Auto-save after 2 seconds of inactivity
-                saveNoteSilently()
+    private fun loadNote() {
+        if (noteId != null) {
+            val notes = noteRepository.getAllNotes()
+            currentNote = notes.find { it.id == noteId }
+            currentNote?.let {
+                binding.noteEditText.setText(it.content)
             }
         }
     }
     
-    private fun saveNote() {
+    private fun setupAutoSave() {
+        binding.noteEditText.addTextChangedListener {
+            autoSaveJob?.cancel()
+            autoSaveJob = autoSaveScope.launch {
+                delay(2000)
+                saveNote(finishAfter = false)
+            }
+        }
+    }
+    
+    private fun saveNote(finishAfter: Boolean) {
         val content = binding.noteEditText.text.toString()
-        if (content.isBlank()) {
-            showMessage("Note is empty")
+        if (content.isBlank() && currentNote == null) {
+            if (finishAfter) {
+                Toast.makeText(this, "Note is empty", Toast.LENGTH_SHORT).show()
+            }
             return
         }
         
-        val noteIdToSave = noteId ?: generateNoteId()
-        saveNoteToStorage(noteIdToSave, content)
+        if (currentNote == null) {
+            // Create new
+            val title = extractTitle(content)
+            currentNote = Note(
+                content = content,
+                title = title
+            )
+            noteRepository.saveNote(currentNote!!)
+            noteId = currentNote!!.id
+        } else {
+            // Update
+            currentNote!!.content = content
+            currentNote!!.title = extractTitle(content)
+            currentNote!!.updatedAt = System.currentTimeMillis()
+            noteRepository.saveNote(currentNote!!)
+        }
         
-        showMessage("Note saved successfully")
-        finish()
-    }
-    
-    private fun saveNoteSilently() {
-        val content = binding.noteEditText.text.toString()
-        if (content.isNotBlank()) {
-            val noteIdToSave = noteId ?: generateNoteId()
-            saveNoteToStorage(noteIdToSave, content)
-            noteId = noteIdToSave
+        if (finishAfter) {
+            Toast.makeText(this, "Note saved", Toast.LENGTH_SHORT).show()
+            finish()
         }
     }
     
-    private fun saveNoteToStorage(noteId: String, content: String) {
-        val sharedPrefs = getSharedPreferences("n0tez_prefs", MODE_PRIVATE)
-        val timestamp = System.currentTimeMillis()
-        
-        sharedPrefs.edit().apply {
-            putString("note_$noteId", content)
-            putLong("note_${noteId}_timestamp", timestamp)
-            apply()
-        }
+    private fun extractTitle(content: String): String {
+        val lines = content.lines()
+        return if (lines.isNotEmpty()) lines[0].take(50) else "Untitled"
     }
     
     private fun shareNote() {
@@ -146,8 +130,6 @@ class NoteEditorActivity : AppCompatActivity() {
                 putExtra(Intent.EXTRA_SUBJECT, "Note from n0tez")
             }
             startActivity(Intent.createChooser(shareIntent, "Share Note"))
-        } else {
-            showMessage("Nothing to share")
         }
     }
     
@@ -157,9 +139,7 @@ class NoteEditorActivity : AppCompatActivity() {
             val clipboard = getSystemService(CLIPBOARD_SERVICE) as android.content.ClipboardManager
             val clip = android.content.ClipData.newPlainText("Note", content)
             clipboard.setPrimaryClip(clip)
-            showMessage("Note copied to clipboard")
-        } else {
-            showMessage("Nothing to copy")
+            Toast.makeText(this, "Copied to clipboard", Toast.LENGTH_SHORT).show()
         }
     }
     
@@ -168,18 +148,9 @@ class NoteEditorActivity : AppCompatActivity() {
         val clip = clipboard.primaryClip
         if (clip != null && clip.itemCount > 0) {
             val pastedText = clip.getItemAt(0).text.toString()
-            val currentText = binding.noteEditText.text.toString()
-            val cursorPosition = binding.noteEditText.selectionStart
-            
-            val newText = if (cursorPosition >= 0) {
-                currentText.substring(0, cursorPosition) + pastedText + 
-                currentText.substring(cursorPosition)
-            } else {
-                currentText + pastedText
-            }
-            
-            binding.noteEditText.setText(newText)
-            binding.noteEditText.setSelection(cursorPosition + pastedText.length)
+            val start = binding.noteEditText.selectionStart.coerceAtLeast(0)
+            val end = binding.noteEditText.selectionEnd.coerceAtLeast(0)
+            binding.noteEditText.text?.replace(Math.min(start, end), Math.max(start, end), pastedText)
         }
     }
     
@@ -187,14 +158,6 @@ class NoteEditorActivity : AppCompatActivity() {
         getSharedPreferences("n0tez_prefs", MODE_PRIVATE).edit()
             .putInt("transparency_level", level)
             .apply()
-    }
-    
-    private fun generateNoteId(): String {
-        return SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-    }
-    
-    private fun showMessage(message: String) {
-        android.widget.Toast.makeText(this, message, android.widget.Toast.LENGTH_SHORT).show()
     }
     
     override fun onSupportNavigateUp(): Boolean {

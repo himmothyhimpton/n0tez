@@ -33,10 +33,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupUI() {
         binding.apply {
             // Card taps
-            cardCreateNote.setOnClickListener {
-                startActivity(Intent(this@MainActivity, NoteEditorActivity::class.java))
-            }
-
+            
             cardFloatingWidget.setOnClickListener {
                 if (hasOverlayPermission()) {
                     startFloatingWidget()
@@ -47,6 +44,14 @@ class MainActivity : AppCompatActivity() {
 
             cardSettings.setOnClickListener {
                 startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
+            }
+
+            cardMyNotes.setOnClickListener {
+                startActivity(Intent(this@MainActivity, NotesListActivity::class.java))
+            }
+
+            cardMultimedia.setOnClickListener {
+                startActivity(Intent(this@MainActivity, MultimediaActivity::class.java))
             }
         }
     }
