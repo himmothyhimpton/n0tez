@@ -19,41 +19,8 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
-      
-    - name: Cache Gradle packages
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-    
-    - name: Accept Android SDK licenses
-      shell: bash
-      run: |
-        if command -v sdkmanager >/dev/null; then
-          yes | sdkmanager --licenses || true
-        else
-          YES_CMD="yes"
-          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
-          $YES_CMD | "$SDKMANAGER" --licenses || true
-        fi
-
-    - name: Install Android SDK packages
-      shell: bash
-      run: |
-        if command -v sdkmanager >/dev/null; then
-          sdkmanager --install "platform-tools" "platforms;android-34" "build-tools;34.0.0"
-        else
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platform-tools" "platforms;android-34" "build-tools;34.0.0"
-        fi
-          
     - name: Setup Gradle
-      uses: gradle/gradle-build-action@v3
+      uses: gradle/actions/setup-gradle@v3
       with:
         gradle-version: 8.9
         
@@ -62,7 +29,14 @@ jobs:
         
     - name: Build Debug APK
       shell: bash
-      run: ./gradlew assembleDebug --no-daemon --stacktrace --info --warning-mode all --no-parallel --max-workers=1
+      run: ./gradlew assembleDebug --no-daemon --stacktrace --info --warning-mode all
+      
+    - name: List Build Outputs
+      if: always()
+      shell: bash
+      run: |
+        echo "Listing build outputs..."
+        ls -R app/build/outputs/ || true
       
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
@@ -72,12 +46,22 @@ jobs:
         
     - name: Build Release APK
       shell: bash
-      run: ./gradlew assembleRelease --no-daemon --stacktrace --info --warning-mode all --no-parallel --max-workers=1
+      run: ./gradlew assembleRelease --no-daemon --stacktrace --info --warning-mode all
+      
+    - name: List Release Outputs
+      if: always()
+      shell: bash
+      run: |
+        echo "Listing release outputs..."
+        ls -R app/build/outputs/apk/release/ || true
 
     - name: Zipalign Release APK
       shell: bash
       run: |
-        "$ANDROID_HOME/build-tools/34.0.0/zipalign" -v -p 4 app/build/outputs/apk/release/app-release-unsigned.apk app-release-aligned.apk
+        # Find zipalign in the latest build-tools
+        ZIPALIGN=$(find $ANDROID_HOME/build-tools -name "zipalign" | sort -r | head -n 1)
+        echo "Using zipalign: $ZIPALIGN"
+        "$ZIPALIGN" -v -p 4 app/build/outputs/apk/release/app-release-unsigned.apk app-release-aligned.apk
 
     - name: Generate Temporary Keystore
       shell: bash
@@ -88,13 +72,17 @@ jobs:
     - name: Sign Release APK
       shell: bash
       run: |
-        "$ANDROID_HOME/build-tools/34.0.0/apksigner" sign --ks release.keystore --ks-pass pass:android --key-pass pass:android \
+        # Find apksigner in the latest build-tools
+        APKSIGNER=$(find $ANDROID_HOME/build-tools -name "apksigner" | sort -r | head -n 1)
+        echo "Using apksigner: $APKSIGNER"
+        "$APKSIGNER" sign --ks release.keystore --ks-pass pass:android --key-pass pass:android \
           --out app-release-signed.apk app-release-aligned.apk
 
     - name: Verify Signed APK
       shell: bash
       run: |
-        "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --verbose app-release-signed.apk
+        APKSIGNER=$(find $ANDROID_HOME/build-tools -name "apksigner" | sort -r | head -n 1)
+        "$APKSIGNER" verify --verbose app-release-signed.apk
 
     - name: Upload Release APK
       uses: actions/upload-artifact@v4
