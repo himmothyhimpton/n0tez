@@ -51,6 +51,10 @@ class FloatingWidgetService : Service() {
     private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var autoSaveJob: Job? = null
     private val mainHandler = Handler(Looper.getMainLooper())
+    
+    private val hideBubbleRunnable = Runnable {
+        floatingBubbleView?.animate()?.alpha(0.3f)?.setDuration(300)?.start()
+    }
 
     companion object {
         const val ACTION_STOP = "com.n0tez.app.STOP_WIDGET"
@@ -137,6 +141,7 @@ class FloatingWidgetService : Service() {
 
             setupBubbleDragAndTap()
             windowManager?.addView(floatingBubbleView, bubbleParams)
+            mainHandler.postDelayed(hideBubbleRunnable, 5000)
         } catch (e: Exception) {
             e.printStackTrace()
             Toast.makeText(this, "Failed to create bubble: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -155,6 +160,9 @@ class FloatingWidgetService : Service() {
         view.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
+                    mainHandler.removeCallbacks(hideBubbleRunnable)
+                    view.animate().alpha(1.0f).setDuration(100).start()
+                    
                     initialX = bubbleParams?.x ?: 0
                     initialY = bubbleParams?.y ?: 0
                     initialTouchX = event.rawX
@@ -163,12 +171,17 @@ class FloatingWidgetService : Service() {
                     true
                 }
                 MotionEvent.ACTION_UP -> {
+                    mainHandler.postDelayed(hideBubbleRunnable, 5000)
+                    
                     if (!isDragging) {
                         toggleNotepad()
                     }
                     true
                 }
                 MotionEvent.ACTION_MOVE -> {
+                    mainHandler.removeCallbacks(hideBubbleRunnable)
+                    view.alpha = 1.0f
+                    
                     val deltaX = event.rawX - initialTouchX
                     val deltaY = event.rawY - initialTouchY
                     

@@ -6,10 +6,9 @@
     android:elevation="8dp">
     <ImageView
         android:id="@+id/bubble_icon"
-        android:background="@drawable/bubble_background"
-        android:padding="12dp"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:src="@drawable/ic_note"
-        android:contentDescription="Open notepad"/>
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_floating_bubble"
+        android:contentDescription="Floating help bubble"
+        android:scaleType="centerCrop"/>
 </FrameLayout>
