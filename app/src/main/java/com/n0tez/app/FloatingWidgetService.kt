@@ -99,6 +99,7 @@ class FloatingWidgetService : Service() {
     }
 
     private fun startForegroundService() {
+        logInternal("fgs_start_attempt")
         val stopIntent = Intent(this, FloatingWidgetService::class.java).apply {
             action = ACTION_STOP
         }
@@ -121,7 +122,13 @@ class FloatingWidgetService : Service() {
             .setPriority(NotificationCompat.PRIORITY_MIN)
             .build()
 
-        startForeground(NOTIFICATION_ID, notification)
+        try {
+            startForeground(NOTIFICATION_ID, notification)
+            logInternal("fgs_started")
+        } catch (e: SecurityException) {
+            logInternal("fgs_security_exception", e)
+            stopSelf()
+        }
     }
 
     private fun createFloatingBubble() {
