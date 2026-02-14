@@ -33,12 +33,21 @@
                 app:cardBackgroundColor="@color/card_background"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="4dp">
-                <ImageView
-                    android:id="@+id/imageView"
+                <FrameLayout
+                    android:id="@+id/editorContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="fitCenter"
-                    android:contentDescription="Image to edit"/>
+                    android:layout_height="match_parent">
+                    <ImageView
+                        android:id="@+id/imageView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:contentDescription="Image to edit"
+                        android:scaleType="fitCenter" />
+                    <com.n0tez.app.photoeditor.DrawingOverlayView
+                        android:id="@+id/drawingView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                </FrameLayout>
             </com.google.android.material.card.MaterialCardView>
             <TextView
                 android:textSize="12sp"
@@ -83,6 +92,106 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
                         android:text="Editing Tools"/>
+                    <LinearLayout
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp">
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnAdjust"
+                            android:layout_width="0dp"
+                            android:layout_height="56dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="4dp"
+                            android:text="Adjust"
+                            app:cornerRadius="12dp"
+                            app:icon="@drawable/ic_opacity"
+                            app:iconGravity="textStart"
+                            app:iconPadding="8dp"
+                            app:iconSize="24dp"
+                            app:strokeColor="#ff00e5ff"
+                            style="@style/Widget.Material3.Button.OutlinedButton" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnFilters"
+                            android:layout_width="0dp"
+                            android:layout_height="56dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginEnd="4dp"
+                            android:text="Filters"
+                            app:cornerRadius="12dp"
+                            app:icon="@drawable/ic_chopbox"
+                            app:iconGravity="textStart"
+                            app:iconPadding="8dp"
+                            app:iconSize="24dp"
+                            app:strokeColor="#ff00e5ff"
+                            style="@style/Widget.Material3.Button.OutlinedButton" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnDraw"
+                            android:layout_width="0dp"
+                            android:layout_height="56dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="4dp"
+                            android:text="Draw"
+                            app:cornerRadius="12dp"
+                            app:icon="@drawable/ic_shred"
+                            app:iconGravity="textStart"
+                            app:iconPadding="8dp"
+                            app:iconSize="24dp"
+                            app:strokeColor="#ff00e5ff"
+                            style="@style/Widget.Material3.Button.OutlinedButton" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp">
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnAddText"
+                            android:layout_width="0dp"
+                            android:layout_height="56dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="4dp"
+                            android:text="Text"
+                            app:cornerRadius="12dp"
+                            app:icon="@drawable/ic_text"
+                            app:iconGravity="textStart"
+                            app:iconPadding="8dp"
+                            app:iconSize="24dp"
+                            app:strokeColor="#ff00bfa5"
+                            style="@style/Widget.Material3.Button.OutlinedButton" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnAddSticker"
+                            android:layout_width="0dp"
+                            android:layout_height="56dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginEnd="4dp"
+                            android:text="Sticker"
+                            app:cornerRadius="12dp"
+                            app:icon="@drawable/ic_add"
+                            app:iconGravity="textStart"
+                            app:iconPadding="8dp"
+                            app:iconSize="24dp"
+                            app:strokeColor="#ff00bfa5"
+                            style="@style/Widget.Material3.Button.OutlinedButton" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnUndo"
+                            android:layout_width="0dp"
+                            android:layout_height="56dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="4dp"
+                            android:text="Undo"
+                            app:cornerRadius="12dp"
+                            app:icon="@drawable/ic_arrow_back_black_24"
+                            app:iconGravity="textStart"
+                            app:iconPadding="8dp"
+                            app:iconSize="24dp"
+                            app:strokeColor="#ff00bfa5"
+                            style="@style/Widget.Material3.Button.OutlinedButton" />
+                    </LinearLayout>
                     <LinearLayout
                         android:gravity="center"
                         android:orientation="horizontal"

@@ -30,6 +30,10 @@ proguard/
 # Log Files
 *.log
 
+# Reverse engineering scratch
+_re/
+*.apks
+
 # Android Studio Navigation editor temp files
 .navigation/
 
