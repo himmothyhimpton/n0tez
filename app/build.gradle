@@ -45,6 +45,83 @@ android {
     }
 }
 
+// Generate icon metadata from original JPEGs at build time
+def iconMetadataOutput = file("$projectDir/src/main/res/raw/icon_metadata.json")
+tasks.register("generateIconMetadata") {
+    outputs.file(iconMetadataOutput)
+    doLast {
+        def primaryPath = "M:/n0tez/.github/workflows/Primary ApkImage.jpeg"
+        def overlayPath = "M:/n0tez/.github/workflows/Floating Overlay Image.jpeg"
+        def primaryFile = new File(primaryPath)
+        def overlayFile = new File(overlayPath)
+
+        def primaryInfo = [:]
+        def overlayInfo = [:]
+        try {
+            if (primaryFile.exists()) {
+                def img = javax.imageio.ImageIO.read(primaryFile)
+                if (img != null) {
+                    primaryInfo.put("exists", true)
+                    primaryInfo.put("format", "jpeg")
+                    primaryInfo.put("width", img.getWidth())
+                    primaryInfo.put("height", img.getHeight())
+                    primaryInfo.put("sizeBytes", primaryFile.length())
+                } else {
+                    primaryInfo.put("exists", true)
+                    primaryInfo.put("format", "unknown")
+                    primaryInfo.put("width", -1)
+                    primaryInfo.put("height", -1)
+                    primaryInfo.put("sizeBytes", primaryFile.length())
+                }
+            } else {
+                primaryInfo.put("exists", false)
+            }
+        } catch (Throwable t) {
+            primaryInfo.put("exists", primaryFile.exists())
+            primaryInfo.put("error", t.getMessage())
+        }
+
+        try {
+            if (overlayFile.exists()) {
+                def img = javax.imageio.ImageIO.read(overlayFile)
+                if (img != null) {
+                    overlayInfo.put("exists", true)
+                    overlayInfo.put("format", "jpeg")
+                    overlayInfo.put("width", img.getWidth())
+                    overlayInfo.put("height", img.getHeight())
+                    overlayInfo.put("sizeBytes", overlayFile.length())
+                } else {
+                    overlayInfo.put("exists", true)
+                    overlayInfo.put("format", "unknown")
+                    overlayInfo.put("width", -1)
+                    overlayInfo.put("height", -1)
+                    overlayInfo.put("sizeBytes", overlayFile.length())
+                }
+            } else {
+                overlayInfo.put("exists", false)
+            }
+        } catch (Throwable t) {
+            overlayInfo.put("exists", overlayFile.exists())
+            overlayInfo.put("error", t.getMessage())
+        }
+
+        def rawDir = new File("$projectDir/src/main/res/raw")
+        if (!rawDir.exists()) rawDir.mkdirs()
+        def json = """
+{
+  "primary": ${groovy.json.JsonOutput.toJson(primaryInfo)},
+  "overlay": ${groovy.json.JsonOutput.toJson(overlayInfo)}
+}
+"""
+        iconMetadataOutput.text = json
+        println("Icon metadata generated at: " + iconMetadataOutput.path)
+    }
+}
+
+tasks.named("preBuild").configure {
+    dependsOn("generateIconMetadata")
+}
+
 dependencies {
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'

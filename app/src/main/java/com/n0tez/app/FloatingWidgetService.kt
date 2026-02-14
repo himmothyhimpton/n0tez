@@ -9,8 +9,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
@@ -20,6 +23,7 @@ import android.text.TextWatcher
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.n0tez.app.data.Note
@@ -77,6 +81,8 @@ class FloatingWidgetService : Service() {
         
         createNotificationChannel()
         startForegroundService()
+        logInternal("service_start")
+        readAndLogIconMetadata()
         createFloatingBubble()
     }
 
@@ -122,15 +128,28 @@ class FloatingWidgetService : Service() {
         try {
             val binding = FloatingBubbleBinding.inflate(LayoutInflater.from(this))
             floatingBubbleView = binding.root
+            logInternal("bubble_create_start")
 
-            // Log image dimensions for debugging
-            try {
-                val opts = android.graphics.BitmapFactory.Options()
-                opts.inJustDecodeBounds = true
-                android.graphics.BitmapFactory.decodeResource(resources, R.drawable.ic_floating_bubble_original, opts)
-                android.util.Log.d("FloatingWidgetService", "Bubble Image Loaded: ${opts.outWidth}x${opts.outHeight}")
-            } catch (e: Exception) {
-                android.util.Log.e("FloatingWidgetService", "Error checking image dimensions: ${e.message}")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+                logInternal("overlay_permission_missing")
+                Toast.makeText(this, "Overlay permission required", Toast.LENGTH_SHORT).show()
+                stopSelf()
+                return
+            }
+
+            val bitmap = decodeOverlayIcon(R.drawable.ic_floating_bubble_original)
+            if (bitmap != null) {
+                binding.bubbleIcon.setImageBitmap(bitmap)
+                logInternal("bubble_icon_set:${bitmap.width}x${bitmap.height}")
+            } else {
+                val fb = decodeOverlayIcon(R.drawable.ic_floating_bubble_large)
+                if (fb != null) {
+                    binding.bubbleIcon.setImageBitmap(fb)
+                    logInternal("bubble_icon_fallback_set:${fb.width}x${fb.height}")
+                } else {
+                    binding.bubbleIcon.setImageResource(R.drawable.ic_notification)
+                    logInternal("bubble_icon_fallback_vector")
+                }
             }
 
             val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -152,17 +171,22 @@ class FloatingWidgetService : Service() {
             }
 
             setupBubbleDragAndTap()
-            windowManager?.addView(floatingBubbleView, bubbleParams)
+            try {
+                windowManager?.addView(floatingBubbleView, bubbleParams)
+                logInternal("bubble_view_added")
+            } catch (e: WindowManager.BadTokenException) {
+                logInternal("bad_token_add_bubble", e)
+                throw e
+            }
             mainHandler.postDelayed(hideBubbleRunnable, 5000)
         } catch (e: OutOfMemoryError) {
-            android.util.Log.e("FloatingWidgetService", "OOM creating bubble: ${e.message}")
-            e.printStackTrace()
+            logInternal("oom_create_bubble", e)
             Toast.makeText(this, "Low memory: Cannot show bubble", Toast.LENGTH_LONG).show()
         } catch (e: android.view.WindowManager.BadTokenException) {
-             android.util.Log.e("FloatingWidgetService", "BadToken creating bubble: ${e.message}")
+             logInternal("bad_token_create_bubble", e)
         } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(this, "Failed to create bubble: ${e.message}", Toast.LENGTH_SHORT).show()
+            logInternal("error_create_bubble", e)
+            Toast.makeText(this, "Failed to create bubble", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -231,6 +255,7 @@ class FloatingWidgetService : Service() {
                 if (isNotepadExpanded.get()) {
                     closeNotepadInternal()
                 } else {
+                    logInternal("notepad_open_attempt")
                     openNotepadInternal()
                 }
             } finally {
@@ -266,15 +291,26 @@ class FloatingWidgetService : Service() {
                 softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
             }
 
-            windowManager?.addView(floatingNotepadView, notepadParams)
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+                    logInternal("overlay_permission_missing_notepad")
+                    Toast.makeText(this, "Overlay permission required", Toast.LENGTH_SHORT).show()
+                    return
+                }
+                windowManager?.addView(floatingNotepadView, notepadParams)
+                logInternal("notepad_view_added")
+            } catch (e: WindowManager.BadTokenException) {
+                logInternal("bad_token_add_notepad", e)
+                throw e
+            }
             isNotepadExpanded.set(true)
             
             setupNotepadUI(binding)
             
             floatingBubbleView?.findViewById<View>(R.id.bubble_icon)?.alpha = 0.5f
         } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(this, "Failed to open notepad: ${e.message}", Toast.LENGTH_SHORT).show()
+            logInternal("error_open_notepad", e)
+            Toast.makeText(this, "Failed to open notepad", Toast.LENGTH_SHORT).show()
             cleanupNotepadViewSafely()
         }
     }
@@ -460,7 +496,7 @@ class FloatingWidgetService : Service() {
                     try {
                         windowManager?.updateViewLayout(floatingNotepadView, notepadParams)
                     } catch (e: Exception) {
-                        e.printStackTrace()
+                        logInternal("error_update_layout_notepad", e)
                     }
                     true
                 }
@@ -507,7 +543,7 @@ class FloatingWidgetService : Service() {
                     try {
                         windowManager?.updateViewLayout(floatingNotepadView, notepadParams)
                     } catch (e: Exception) {
-                        e.printStackTrace()
+                        logInternal("error_update_layout_resize", e)
                     }
                     true
                 }
@@ -605,7 +641,7 @@ class FloatingWidgetService : Service() {
         try {
             floatingBubbleView?.findViewById<View>(R.id.bubble_icon)?.alpha = 1.0f
         } catch (e: Exception) {
-            e.printStackTrace()
+            logInternal("error_close_notepad", e)
         }
     }
 
@@ -613,6 +649,68 @@ class FloatingWidgetService : Service() {
         editText.requestFocus()
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT)
+    }
+
+    private fun decodeOverlayIcon(resourceId: Int): Bitmap? {
+        return try {
+            val bounds = BitmapFactory.Options()
+            bounds.inPreferredConfig = Bitmap.Config.ARGB_8888
+            bounds.inJustDecodeBounds = true
+            BitmapFactory.decodeResource(resources, resourceId, bounds)
+            val target = 96
+            val sample = computeSampleSize(bounds.outWidth, bounds.outHeight, target)
+            val opts = BitmapFactory.Options()
+            opts.inPreferredConfig = Bitmap.Config.ARGB_8888
+            opts.inSampleSize = sample
+            var bm = BitmapFactory.decodeResource(resources, resourceId, opts)
+            if (bm == null) return null
+            if (bm.width != target || bm.height != target) {
+                bm = Bitmap.createScaledBitmap(bm, target, target, true)
+            }
+            bm
+        } catch (e: OutOfMemoryError) {
+            logInternal("oom_decode_icon", e)
+            null
+        } catch (e: Exception) {
+            logInternal("error_decode_icon", e)
+            null
+        }
+    }
+
+    private fun computeSampleSize(w: Int, h: Int, target: Int): Int {
+        var sample = 1
+        var width = w
+        var height = h
+        while (width / sample > target * 2 || height / sample > target * 2) {
+            sample *= 2
+        }
+        return sample.coerceAtLeast(1)
+    }
+
+    private fun readAndLogIconMetadata() {
+        try {
+            val id = resources.getIdentifier("icon_metadata", "raw", packageName)
+            if (id != 0) {
+                val text = resources.openRawResource(id).bufferedReader().use { it.readText() }
+                logInternal("icon_metadata:${text.length}")
+            } else {
+                logInternal("icon_metadata_missing")
+            }
+        } catch (e: Exception) {
+            logInternal("icon_metadata_error", e)
+        }
+    }
+
+    private fun logInternal(event: String, throwable: Throwable? = null) {
+        try {
+            val msg = if (throwable != null) "$event:${throwable.message ?: "err"}" else event
+            android.util.Log.d("FloatingWidgetService", msg, throwable)
+            val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val existing = prefs.getString("service_logs", "") ?: ""
+            val combined = (existing + "\n" + System.currentTimeMillis() + ":" + msg)
+            val trimmed = if (combined.length > 10000) combined.takeLast(10000) else combined
+            prefs.edit().putString("service_logs", trimmed).apply()
+        } catch (_: Exception) {}
     }
 
     private fun hideKeyboard(view: View) {
