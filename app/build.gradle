@@ -6,6 +6,8 @@ plugins {
     id 'com.google.firebase.crashlytics'
 }
 
+def isReleaseTask = gradle.startParameter.taskNames.any { it.toLowerCase().contains("release") }
+
 android {
     namespace 'com.n0tez.app'
     compileSdk 34
@@ -24,8 +26,31 @@ android {
         }
     }
 
+    signingConfigs {
+        release {
+            if (isReleaseTask) {
+                def storeFilePath = System.getenv("N0TEZ_STORE_FILE")
+                def storePasswordEnv = System.getenv("N0TEZ_STORE_PASSWORD")
+                def keyAliasEnv = System.getenv("N0TEZ_KEY_ALIAS")
+                def keyPasswordEnv = System.getenv("N0TEZ_KEY_PASSWORD")
+                if (!storeFilePath || !storePasswordEnv || !keyAliasEnv || !keyPasswordEnv) {
+                    throw new GradleException("Release signing is not configured. Set env vars N0TEZ_STORE_FILE, N0TEZ_STORE_PASSWORD, N0TEZ_KEY_ALIAS, N0TEZ_KEY_PASSWORD.")
+                }
+                storeFile file(storeFilePath)
+                storePassword storePasswordEnv
+                keyAlias keyAliasEnv
+                keyPassword keyPasswordEnv
+                enableV1Signing true
+                enableV2Signing true
+            }
+        }
+    }
+
     buildTypes {
         release {
+            if (isReleaseTask) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             firebaseCrashlytics {

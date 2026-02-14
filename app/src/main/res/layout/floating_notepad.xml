@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/notepad_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -24,7 +25,7 @@
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:src="@drawable/ic_home"
-                android:tint="#ff00ffff"
+                app:tint="#ff00ffff"
                 android:contentDescription="Return to app"/>
             <TextView
                 android:textSize="14sp"
@@ -44,7 +45,7 @@
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:src="@drawable/ic_save"
-                android:tint="#ffffff"
+                app:tint="#ffffff"
                 android:contentDescription="Save note"/>
             <ImageButton
                 android:id="@+id/btn_close_notepad"
@@ -53,7 +54,7 @@
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:src="@drawable/ic_close"
-                android:tint="#ffffff"
+                app:tint="#ffffff"
                 android:contentDescription="Close notepad"/>
         </LinearLayout>
         <LinearLayout
@@ -68,7 +69,7 @@
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:src="@drawable/ic_opacity"
-                android:tint="#ff00ffff"/>
+                app:tint="#ff00ffff"/>
             <SeekBar
                 android:id="@+id/transparency_seekbar"
                 android:layout_width="0dp"
@@ -135,7 +136,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:src="@drawable/ic_note"
-                android:tint="#ff00ffff"
+                app:tint="#ff00ffff"
                 android:contentDescription="Select saved note"/>
             <ImageButton
                 android:id="@+id/btn_new_note"
@@ -144,7 +145,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:src="@drawable/ic_add"
-                android:tint="#ff00ffff"
+                app:tint="#ff00ffff"
                 android:contentDescription="New note"/>
             <ImageButton
                 android:id="@+id/btn_pin_note"
@@ -153,7 +154,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:src="@drawable/ic_pin"
-                android:tint="#ffffff"
+                app:tint="#ffffff"
                 android:contentDescription="Pin note"/>
             <ImageButton
                 android:id="@+id/btn_share_note"
@@ -162,7 +163,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:src="@drawable/ic_share"
-                android:tint="#ff00ffff"
+                app:tint="#ff00ffff"
                 android:contentDescription="Share note"/>
             <View
                 android:layout_width="0dp"
@@ -175,7 +176,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:src="@drawable/ic_delete"
-                android:tint="#ffff6b6b"
+                app:tint="#ffff6b6b"
                 android:contentDescription="Delete note"/>
             <ImageButton
                 android:id="@+id/btn_shred_note"
@@ -184,7 +185,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:src="@drawable/ic_shred"
-                android:tint="#ffff4444"
+                app:tint="#ffff4444"
                 android:contentDescription="Shred note securely"/>
             <ImageButton
                 android:id="@+id/btn_resize"
@@ -193,7 +194,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:src="@drawable/ic_resize"
-                android:tint="#80ffffff"
+                app:tint="#80ffffff"
                 android:contentDescription="Resize notepad"/>
         </LinearLayout>
     </LinearLayout>

@@ -8,6 +8,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.ServiceInfo
 import android.graphics.Color
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -24,6 +25,7 @@ import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import android.provider.Settings
+import androidx.core.app.ServiceCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.n0tez.app.data.Note
@@ -123,7 +125,16 @@ class FloatingWidgetService : Service() {
             .build()
 
         try {
-            startForeground(NOTIFICATION_ID, notification)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                ServiceCompat.startForeground(
+                    this,
+                    NOTIFICATION_ID,
+                    notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                )
+            } else {
+                startForeground(NOTIFICATION_ID, notification)
+            }
             logInternal("fgs_started")
         } catch (e: SecurityException) {
             logInternal("fgs_security_exception", e)
