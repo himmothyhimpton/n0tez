@@ -441,4 +441,5 @@
     <color name="ucrop_color_widget_rotate_mid_line">@color/ucrop_color_blaze_orange</color>
     <color name="ucrop_color_widget_text">@color/ucrop_color_blaze_orange</color>
     <color name="white">#ffffffff</color>
+    <color name="ic_launcher_background">#050914</color>
 </resources>

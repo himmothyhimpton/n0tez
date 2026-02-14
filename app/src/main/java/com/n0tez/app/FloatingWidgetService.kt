@@ -55,6 +55,8 @@ class FloatingWidgetService : Service() {
     private val hideBubbleRunnable = Runnable {
         floatingBubbleView?.animate()?.alpha(0.3f)?.setDuration(300)?.start()
     }
+    
+    internal var testNotepadOpened = false
 
     companion object {
         const val ACTION_STOP = "com.n0tez.app.STOP_WIDGET"
@@ -121,6 +123,16 @@ class FloatingWidgetService : Service() {
             val binding = FloatingBubbleBinding.inflate(LayoutInflater.from(this))
             floatingBubbleView = binding.root
 
+            // Log image dimensions for debugging
+            try {
+                val opts = android.graphics.BitmapFactory.Options()
+                opts.inJustDecodeBounds = true
+                android.graphics.BitmapFactory.decodeResource(resources, R.drawable.ic_floating_bubble_original, opts)
+                android.util.Log.d("FloatingWidgetService", "Bubble Image Loaded: ${opts.outWidth}x${opts.outHeight}")
+            } catch (e: Exception) {
+                android.util.Log.e("FloatingWidgetService", "Error checking image dimensions: ${e.message}")
+            }
+
             val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
             } else {
@@ -142,6 +154,12 @@ class FloatingWidgetService : Service() {
             setupBubbleDragAndTap()
             windowManager?.addView(floatingBubbleView, bubbleParams)
             mainHandler.postDelayed(hideBubbleRunnable, 5000)
+        } catch (e: OutOfMemoryError) {
+            android.util.Log.e("FloatingWidgetService", "OOM creating bubble: ${e.message}")
+            e.printStackTrace()
+            Toast.makeText(this, "Low memory: Cannot show bubble", Toast.LENGTH_LONG).show()
+        } catch (e: android.view.WindowManager.BadTokenException) {
+             android.util.Log.e("FloatingWidgetService", "BadToken creating bubble: ${e.message}")
         } catch (e: Exception) {
             e.printStackTrace()
             Toast.makeText(this, "Failed to create bubble: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -222,10 +240,12 @@ class FloatingWidgetService : Service() {
     }
 
     private fun openNotepadInternal() {
+        testNotepadOpened = true
         cleanupNotepadViewSafely()
         try {
             val binding = FloatingNotepadBinding.inflate(LayoutInflater.from(this))
             floatingNotepadView = binding.root
+            // ... (rest of code)
 
             val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY

@@ -8,6 +8,10 @@ import android.os.Looper
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.ReturnCode
 import com.n0tez.app.databinding.ActivityVideoEditorBinding
@@ -103,23 +107,25 @@ class VideoEditorActivity : AppCompatActivity() {
 
     private fun loadVideo(uri: Uri) {
         binding.videoView.setVideoURI(uri)
-        // Copy to cache for FFmpeg if needed
-        // For simple playback, setVideoURI is enough
-        // For FFmpeg, we need a file path.
-        // We can use a helper to get path from Uri or copy to temp file.
-        // I'll implement a simple copy to temp file logic if needed.
+        
         if (videoPath == null) {
-            // Copy uri to temp file
-            try {
-                val inputStream = contentResolver.openInputStream(uri)
-                val tempFile = File(cacheDir, "temp_video.mp4")
-                val outputStream = java.io.FileOutputStream(tempFile)
-                inputStream?.copyTo(outputStream)
-                videoPath = tempFile.absolutePath
-                inputStream?.close()
-                outputStream.close()
-            } catch (e: Exception) {
-                e.printStackTrace()
+            lifecycleScope.launch(Dispatchers.IO) {
+                try {
+                    val inputStream = contentResolver.openInputStream(uri)
+                    val tempFile = File(cacheDir, "temp_video.mp4")
+                    val outputStream = java.io.FileOutputStream(tempFile)
+                    inputStream?.copyTo(outputStream)
+                    
+                    inputStream?.close()
+                    outputStream.close()
+                    
+                    videoPath = tempFile.absolutePath
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@VideoEditorActivity, "Failed to load video file", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
         }
     }

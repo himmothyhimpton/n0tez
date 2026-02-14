@@ -98,23 +98,25 @@ public final class MediaGalleryActivity extends AppCompatActivity {
     }
 
     private void loadMedia() {
-        allMediaItems.clear();
-        
-        // Scan standard directories
-        scanDirectory(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "FaceShot-BuildingBlock"));
-        scanDirectory(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "FaceShot-BuildingBlock"));
-        scanDirectory(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC), "FaceShot-BuildingBlock"));
-        
-        // Also scan external files dir if used
-        File externalFiles = getExternalFilesDir(null);
-        if (externalFiles != null) {
-            scanDirectory(externalFiles);
-        }
-
-        // Sort by date modified desc
-        Collections.sort(allMediaItems, (o1, o2) -> Long.compare(o2.dateModified, o1.dateModified));
-        
-        filterMedia(currentFilter);
+        new Thread(() -> {
+            allMediaItems.clear();
+            
+            // Scan standard directories
+            scanDirectory(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "FaceShot-BuildingBlock"));
+            scanDirectory(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "FaceShot-BuildingBlock"));
+            scanDirectory(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC), "FaceShot-BuildingBlock"));
+            
+            // Also scan external files dir if used
+            File externalFiles = getExternalFilesDir(null);
+            if (externalFiles != null) {
+                scanDirectory(externalFiles);
+            }
+    
+            // Sort by date modified desc
+            Collections.sort(allMediaItems, (o1, o2) -> Long.compare(o2.dateModified, o1.dateModified));
+            
+            runOnUiThread(() -> filterMedia(currentFilter));
+        }).start();
     }
 
     private void scanDirectory(File directory) {

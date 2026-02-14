@@ -101,8 +101,29 @@ class PhotoEditorActivity : AppCompatActivity() {
 
     private fun loadImage(uri: Uri) {
         try {
+            // Check mime type
+            val mimeType = contentResolver.getType(uri)
+            if (mimeType != null && !mimeType.startsWith("image/")) {
+                Toast.makeText(this, "Unsupported file type: $mimeType", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            // First decode with inJustDecodeBounds=true to check dimensions
+            var options = BitmapFactory.Options()
+            options.inJustDecodeBounds = true
+            contentResolver.openInputStream(uri)?.use { 
+                BitmapFactory.decodeStream(it, null, options)
+            }
+
+            // Calculate inSampleSize
+            options.inJustDecodeBounds = false
+            options.inSampleSize = calculateInSampleSize(options, 2048, 2048)
+
+            // Decode bitmap with inSampleSize
             contentResolver.openInputStream(uri)?.use { inputStream ->
-                originalBitmap = BitmapFactory.decodeStream(inputStream)
+                originalBitmap = BitmapFactory.decodeStream(inputStream, null, options)
+                if (originalBitmap == null) throw IOException("Failed to decode bitmap")
+                
                 editedBitmap = originalBitmap?.copy(Bitmap.Config.ARGB_8888, true)
                 imageUri = uri
                 displayImage()
@@ -111,19 +132,56 @@ class PhotoEditorActivity : AppCompatActivity() {
         } catch (e: IOException) {
             e.printStackTrace()
             Toast.makeText(this, "Failed to load image: ${e.message}", Toast.LENGTH_SHORT).show()
+        } catch (e: OutOfMemoryError) {
+            e.printStackTrace()
+            Toast.makeText(this, "Out of memory! Try a smaller image.", Toast.LENGTH_LONG).show()
         }
+    }
+
+    private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
+        val (height: Int, width: Int) = options.run { outHeight to outWidth }
+        var inSampleSize = 1
+
+        if (height > reqHeight || width > reqWidth) {
+            val halfHeight: Int = height / 2
+            val halfWidth: Int = width / 2
+
+            while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
+                inSampleSize *= 2
+            }
+        }
+        return inSampleSize
     }
 
     private fun loadImageFromPath(path: String) {
         try {
-            originalBitmap = BitmapFactory.decodeFile(path)
+            val file = File(path)
+            if (!file.exists()) {
+                 Toast.makeText(this, "File not found", Toast.LENGTH_SHORT).show()
+                 return
+            }
+            
+            val options = BitmapFactory.Options()
+            options.inJustDecodeBounds = true
+            BitmapFactory.decodeFile(path, options)
+            
+            options.inJustDecodeBounds = false
+            options.inSampleSize = calculateInSampleSize(options, 2048, 2048)
+            
+            originalBitmap = BitmapFactory.decodeFile(path, options)
+            if (originalBitmap == null) throw IOException("Failed to decode bitmap")
+            
             editedBitmap = originalBitmap?.copy(Bitmap.Config.ARGB_8888, true)
-            imageUri = Uri.fromFile(File(path))
+            imageUri = Uri.fromFile(file)
             displayImage()
             Toast.makeText(this, "Image loaded", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             e.printStackTrace()
             Toast.makeText(this, "Failed to load image: ${e.message}", Toast.LENGTH_SHORT).show()
+            finish()
+        } catch (e: OutOfMemoryError) {
+            e.printStackTrace()
+            Toast.makeText(this, "Out of memory!", Toast.LENGTH_LONG).show()
             finish()
         }
     }
