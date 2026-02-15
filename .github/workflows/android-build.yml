@@ -19,11 +19,6 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v3
-      with:
-        gradle-version: 8.9
-        
     - name: Grant execute permission for gradlew
       run: chmod +x ./gradlew
         
@@ -43,9 +38,20 @@ jobs:
       with:
         name: n0tez-debug-apk
         path: app/build/outputs/apk/debug/app-debug.apk
-        
-    - name: Build Release APK
+
+    - name: Generate Temporary Keystore (CI only)
       shell: bash
+      run: |
+        keytool -genkey -v -keystore release.keystore -storepass android -keypass android -alias n0tez \
+          -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=n0tez, OU=CI, O=n0tez, L=City, S=State, C=US"
+
+    - name: Build Release APK (signed with temporary keystore)
+      shell: bash
+      env:
+        N0TEZ_STORE_FILE: ${{ github.workspace }}/release.keystore
+        N0TEZ_STORE_PASSWORD: android
+        N0TEZ_KEY_ALIAS: n0tez
+        N0TEZ_KEY_PASSWORD: android
       run: ./gradlew assembleRelease --no-daemon --stacktrace --info --warning-mode all
       
     - name: List Release Outputs
@@ -55,43 +61,8 @@ jobs:
         echo "Listing release outputs..."
         ls -R app/build/outputs/apk/release/ || true
 
-    - name: Zipalign Release APK
-      shell: bash
-      run: |
-        # Find zipalign in the latest build-tools
-        ZIPALIGN=$(find $ANDROID_HOME/build-tools -name "zipalign" | sort -r | head -n 1)
-        echo "Using zipalign: $ZIPALIGN"
-        "$ZIPALIGN" -v -p 4 app/build/outputs/apk/release/app-release-unsigned.apk app-release-aligned.apk
-
-    - name: Generate Temporary Keystore
-      shell: bash
-      run: |
-        keytool -genkey -v -keystore release.keystore -storepass android -keypass android -alias n0tez \
-          -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=n0tez, OU=Dev, O=n0tez, L=City, S=State, C=US"
-
-    - name: Sign Release APK
-      shell: bash
-      run: |
-        # Find apksigner in the latest build-tools
-        APKSIGNER=$(find $ANDROID_HOME/build-tools -name "apksigner" | sort -r | head -n 1)
-        echo "Using apksigner: $APKSIGNER"
-        "$APKSIGNER" sign --ks release.keystore --ks-pass pass:android --key-pass pass:android \
-          --out app-release-signed.apk app-release-aligned.apk
-
-    - name: Verify Signed APK
-      shell: bash
-      run: |
-        APKSIGNER=$(find $ANDROID_HOME/build-tools -name "apksigner" | sort -r | head -n 1)
-        "$APKSIGNER" verify --verbose app-release-signed.apk
-
     - name: Upload Release APK
       uses: actions/upload-artifact@v4
       with:
         name: n0tez-release-apk
-        path: app/build/outputs/apk/release/app-release-unsigned.apk
-
-    - name: Upload Signed Release APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: n0tez-release-signed-apk
-        path: app-release-signed.apk
+        path: app/build/outputs/apk/release/app-release.apk
