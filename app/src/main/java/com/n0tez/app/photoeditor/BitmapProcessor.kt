@@ -60,6 +60,25 @@ object BitmapProcessor {
 
     fun newId(): String = UUID.randomUUID().toString()
 
+    fun inpaintWithMask(base: Bitmap, mask: Bitmap): Bitmap {
+        val w = base.width
+        val h = base.height
+        val basePixels = IntArray(w * h)
+        val maskPixels = IntArray(w * h)
+        base.getPixels(basePixels, 0, w, 0, 0, w, h)
+        mask.getPixels(maskPixels, 0, w, 0, 0, w, h)
+        val out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        for (i in basePixels.indices) {
+            val mp = maskPixels[i]
+            val maskAlpha = (mp ushr 24) and 0xFF
+            if (maskAlpha > 24) {
+                out.setPixel(i % w, i / w, 0x00000000)
+            } else {
+                out.setPixel(i % w, i / w, basePixels[i])
+            }
+        }
+        return out
+    }
     private fun downscaleToMax(source: Bitmap, maxSize: Int): Bitmap {
         val longest = max(source.width, source.height)
         if (longest <= maxSize) return source.copy(Bitmap.Config.ARGB_8888, true)
@@ -126,6 +145,7 @@ object BitmapProcessor {
         val hasVignette = adjustments.vignette > 0f
         val hasGrain = adjustments.grain > 0f
         val hasSharpen = adjustments.sharpen > 0f
+        val hasBlur = adjustments.blur > 0f
 
         var working = bitmap
 
@@ -140,6 +160,9 @@ object BitmapProcessor {
         }
         if (hasSharpen) {
             working = applySharpen(working, adjustments.sharpen)
+        }
+        if (hasBlur) {
+            working = applyBlur(working, adjustments.blur)
         }
 
         return working
@@ -261,6 +284,84 @@ object BitmapProcessor {
         return out
     }
 
+    private fun applyBlur(bitmap: Bitmap, strength: Float): Bitmap {
+        val s = strength.coerceIn(0f, 1f)
+        if (s <= 0f) return bitmap
+        val radius = max(1, (s * 12f).roundToInt())
+        val w = bitmap.width
+        val h = bitmap.height
+        val src = IntArray(w * h)
+        val tmp = IntArray(w * h)
+        bitmap.getPixels(src, 0, w, 0, 0, w, h)
+
+        val kernelSize = radius * 2 + 1
+        for (y in 0 until h) {
+            var rSum = 0
+            var gSum = 0
+            var bSum = 0
+            var aSum = 0
+            for (kx in -radius..radius) {
+                val x = kx.coerceIn(0, w - 1)
+                val c = src[y * w + x]
+                aSum += (c ushr 24) and 0xFF
+                rSum += (c ushr 16) and 0xFF
+                gSum += (c ushr 8) and 0xFF
+                bSum += c and 0xFF
+            }
+            for (x in 0 until w) {
+                val idx = y * w + x
+                tmp[idx] = ((aSum / kernelSize) shl 24) or
+                    ((rSum / kernelSize) shl 16) or
+                    ((gSum / kernelSize) shl 8) or
+                    (bSum / kernelSize)
+
+                val removeX = (x - radius).coerceIn(0, w - 1)
+                val addX = (x + radius + 1).coerceIn(0, w - 1)
+                val cRemove = src[y * w + removeX]
+                val cAdd = src[y * w + addX]
+                aSum += ((cAdd ushr 24) and 0xFF) - ((cRemove ushr 24) and 0xFF)
+                rSum += ((cAdd ushr 16) and 0xFF) - ((cRemove ushr 16) and 0xFF)
+                gSum += ((cAdd ushr 8) and 0xFF) - ((cRemove ushr 8) and 0xFF)
+                bSum += (cAdd and 0xFF) - (cRemove and 0xFF)
+            }
+        }
+
+        val out = IntArray(w * h)
+        for (x in 0 until w) {
+            var rSum = 0
+            var gSum = 0
+            var bSum = 0
+            var aSum = 0
+            for (ky in -radius..radius) {
+                val y = ky.coerceIn(0, h - 1)
+                val c = tmp[y * w + x]
+                aSum += (c ushr 24) and 0xFF
+                rSum += (c ushr 16) and 0xFF
+                gSum += (c ushr 8) and 0xFF
+                bSum += c and 0xFF
+            }
+            for (y in 0 until h) {
+                val idx = y * w + x
+                out[idx] = ((aSum / kernelSize) shl 24) or
+                    ((rSum / kernelSize) shl 16) or
+                    ((gSum / kernelSize) shl 8) or
+                    (bSum / kernelSize)
+
+                val removeY = (y - radius).coerceIn(0, h - 1)
+                val addY = (y + radius + 1).coerceIn(0, h - 1)
+                val cRemove = tmp[removeY * w + x]
+                val cAdd = tmp[addY * w + x]
+                aSum += ((cAdd ushr 24) and 0xFF) - ((cRemove ushr 24) and 0xFF)
+                rSum += ((cAdd ushr 16) and 0xFF) - ((cRemove ushr 16) and 0xFF)
+                gSum += ((cAdd ushr 8) and 0xFF) - ((cRemove ushr 8) and 0xFF)
+                bSum += (cAdd and 0xFF) - (cRemove and 0xFF)
+            }
+        }
+
+        val blurred = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        blurred.setPixels(out, 0, w, 0, 0, w, h)
+        return blurred
+    }
     private fun applySharpen(bitmap: Bitmap, strength: Float): Bitmap {
         val s = strength.coerceIn(0f, 1f)
         if (s == 0f) return bitmap

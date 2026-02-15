@@ -1,6 +1,7 @@
 package com.n0tez.app
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -14,8 +15,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.ReturnCode
+import com.android.video.util.VideoEditorUtil
 import com.n0tez.app.databinding.ActivityVideoEditorBinding
 import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -79,6 +82,7 @@ class VideoEditorActivity : AppCompatActivity() {
         }
 
         binding.btnSave.setOnClickListener { saveVideo() }
+        binding.btnExtractFrame.setOnClickListener { extractFrame() }
         
         binding.rangeSliderTrim.addOnChangeListener { slider, value, fromUser ->
             val values = slider.values
@@ -107,6 +111,7 @@ class VideoEditorActivity : AppCompatActivity() {
 
     private fun loadVideo(uri: Uri) {
         binding.videoView.setVideoURI(uri)
+        videoPath?.let { updateNativeVideoInfo(it) }
         
         if (videoPath == null) {
             lifecycleScope.launch(Dispatchers.IO) {
@@ -120,6 +125,7 @@ class VideoEditorActivity : AppCompatActivity() {
                     outputStream.close()
                     
                     videoPath = tempFile.absolutePath
+                    updateNativeVideoInfo(tempFile.absolutePath)
                 } catch (e: Exception) {
                     e.printStackTrace()
                     withContext(Dispatchers.Main) {
@@ -130,6 +136,25 @@ class VideoEditorActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateNativeVideoInfo(path: String) {
+        if (!VideoEditorUtil.isAvailable()) {
+            binding.tvVideoInfo.text = "Native video engine unavailable"
+            return
+        }
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val info = VideoEditorUtil.nativeGetVideoInfo(this@VideoEditorActivity, path)
+                val resolved = if (info.isNullOrBlank()) "Native info unavailable" else info
+                withContext(Dispatchers.Main) {
+                    binding.tvVideoInfo.text = resolved
+                }
+            } catch (e: Throwable) {
+                withContext(Dispatchers.Main) {
+                    binding.tvVideoInfo.text = "Native info error: ${e.message}"
+                }
+            }
+        }
+    }
     private fun playVideo() {
         binding.videoView.start()
         isPlaying = true
@@ -186,6 +211,48 @@ class VideoEditorActivity : AppCompatActivity() {
         trimVideo()
     }
 
+    private fun extractFrame() {
+        val path = videoPath
+        if (path == null) {
+            Toast.makeText(this, "No video loaded", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (!VideoEditorUtil.isAvailable()) {
+            Toast.makeText(this, "Native video engine unavailable", Toast.LENGTH_SHORT).show()
+            return
+        }
+        lifecycleScope.launch(Dispatchers.IO) {
+            var bitmap: Bitmap? = null
+            try {
+                val w = if (binding.videoView.width > 0) binding.videoView.width else 640
+                val h = if (binding.videoView.height > 0) binding.videoView.height else 360
+                bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+                val openResult = VideoEditorUtil.nativeOpenVideoFile(path, 0)
+                if (openResult < 0) {
+                    throw IllegalStateException("Native open failed")
+                }
+                VideoEditorUtil.nativeSeekTo(binding.videoView.currentPosition.toLong())
+                val frameResult = VideoEditorUtil.nativeGetNextFrame(bitmap)
+                if (frameResult < 0) {
+                    throw IllegalStateException("Frame extraction failed")
+                }
+                val outputFile = File(cacheDir, "frame_${System.currentTimeMillis()}.png")
+                FileOutputStream(outputFile).use { out ->
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                }
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@VideoEditorActivity, "Frame saved: ${outputFile.name}", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@VideoEditorActivity, "Frame extract failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            } finally {
+                VideoEditorUtil.nativeRelease()
+                bitmap?.recycle()
+            }
+        }
+    }
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true

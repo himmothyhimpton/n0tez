@@ -20,6 +20,7 @@ data class Adjustments(
     val vignette: Float = 0f,
     val grain: Float = 0f,
     val sharpen: Float = 0f,
+    val blur: Float = 0f,
 )
 
 sealed interface FilterPreset {
