@@ -115,6 +115,8 @@ class PhotoEditorActivity : AppCompatActivity() {
         binding.btnUndo.setOnClickListener { undoLastEdit() }
         binding.btnAddText.setOnClickListener { showAddTextDialog() }
         binding.btnAddSticker.setOnClickListener { pickStickerLauncher.launch("image/*") }
+        binding.btnAiCutout.setOnClickListener { runAiCutout() }
+        binding.btnRemove.setOnClickListener { runObjectRemoval() }
         
         binding.seekBarQuality.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -519,6 +521,91 @@ class PhotoEditorActivity : AppCompatActivity() {
         Toast.makeText(this, "Nothing to undo", Toast.LENGTH_SHORT).show()
     }
 
+    private fun runAiCutout() {
+        val base = editedBitmap
+        if (base == null) {
+            Toast.makeText(this, "Load an image first", Toast.LENGTH_SHORT).show()
+            return
+        }
+        lifecycleScope.launch {
+            try {
+                val mask = createSimpleMask(base)
+                val cutout = BitmapProcessor.inpaintWithMask(base, mask)
+                updateEditedBitmap(cutout)
+            } catch (e: Exception) {
+                Toast.makeText(this@PhotoEditorActivity, "AI cutout failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun runObjectRemoval() {
+        val base = editedBitmap
+        if (base == null) {
+            Toast.makeText(this, "Load an image first", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (binding.drawingView.strokes.isEmpty()) {
+            Toast.makeText(this, "Draw over the area to remove", Toast.LENGTH_SHORT).show()
+            return
+        }
+        lifecycleScope.launch {
+            try {
+                val mask = createStrokeMask(base)
+                val removed = BitmapProcessor.inpaintWithMask(base, mask)
+                binding.drawingView.clear()
+                updateEditedBitmap(removed)
+            } catch (e: Exception) {
+                Toast.makeText(this@PhotoEditorActivity, "Removal failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun updateEditedBitmap(bitmap: Bitmap) {
+        val previous = editedBitmap
+        editedBitmap = bitmap
+        previewBitmap?.let { if (it != previous && it != bitmap) it.recycle() }
+        previewBitmap = null
+        binding.imageView.setImageBitmap(bitmap)
+    }
+
+    private fun createStrokeMask(base: Bitmap): Bitmap {
+        val mask = Bitmap.createBitmap(base.width, base.height, Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(mask)
+        canvas.drawColor(0x00000000)
+        val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            style = android.graphics.Paint.Style.STROKE
+            strokeCap = android.graphics.Paint.Cap.ROUND
+            strokeJoin = android.graphics.Paint.Join.ROUND
+            color = 0xFFFFFFFF.toInt()
+        }
+        val mapper = ImageViewBitmapMapper(binding.imageView)
+        for (stroke in binding.drawingView.strokes) {
+            paint.strokeWidth = stroke.widthPx * 2f
+            val path = android.graphics.Path()
+            val first = stroke.points.firstOrNull() ?: continue
+            val fp = mapper.bitmapToView(first.x, first.y) ?: continue
+            path.moveTo(fp.x, fp.y)
+            for (pt in stroke.points.drop(1)) {
+                val vp = mapper.bitmapToView(pt.x, pt.y) ?: continue
+                path.lineTo(vp.x, vp.y)
+            }
+            canvas.drawPath(path, paint)
+        }
+        return mask
+    }
+
+    private fun createSimpleMask(base: Bitmap): Bitmap {
+        val mask = Bitmap.createBitmap(base.width, base.height, Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(mask)
+        val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            color = 0xFFFFFFFF.toInt()
+        }
+        val cx = base.width / 2f
+        val cy = base.height / 2f
+        val r = (minOf(base.width, base.height) * 0.25f)
+        canvas.drawCircle(cx, cy, r, paint)
+        return mask
+    }
     private fun showAddTextDialog() {
         val input = EditText(this).apply { hint = "Enter text" }
         val colors = arrayOf("White", "Black", "Red", "Green", "Blue", "Yellow")
@@ -594,7 +681,7 @@ class PhotoEditorActivity : AppCompatActivity() {
     }
 
     private fun showAdjustmentsDialog() {
-        val items = arrayOf("Brightness", "Contrast", "Saturation", "Warmth", "Tint", "Vignette", "Grain", "Sharpen", "Reset")
+        val items = arrayOf("Brightness", "Contrast", "Saturation", "Warmth", "Tint", "Vignette", "Grain", "Sharpen", "Blur", "Reset")
         AlertDialog.Builder(this)
             .setTitle("Adjustments")
             .setItems(items) { _, which ->
@@ -607,7 +694,8 @@ class PhotoEditorActivity : AppCompatActivity() {
                     5 -> showSliderDialog("Vignette", adjustments.vignette, 0f, 1f) { v -> adjustments = adjustments.copy(vignette = v); applyPreviewDebounced() }
                     6 -> showSliderDialog("Grain", adjustments.grain, 0f, 1f) { v -> adjustments = adjustments.copy(grain = v); applyPreviewDebounced() }
                     7 -> showSliderDialog("Sharpen", adjustments.sharpen, 0f, 1f) { v -> adjustments = adjustments.copy(sharpen = v); applyPreviewDebounced() }
-                    8 -> {
+                    8 -> showSliderDialog("Blur", adjustments.blur, 0f, 1f) { v -> adjustments = adjustments.copy(blur = v); applyPreviewDebounced() }
+                    9 -> {
                         adjustments = Adjustments()
                         filterPreset = FilterPreset.None
                         applyPreviewDebounced()
